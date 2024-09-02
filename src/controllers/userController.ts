@@ -17,11 +17,11 @@ import WishlistModel from "../models/whishlistModel";
 import CartModel from "../models/CartModel";
 import transport from "../emailConfig";
 
+
 const jwtsecret = process.env.JWT_SECRET as string;
 
 export const RegisterUser = async (req: Request, res: Response) => {
   try {
-    // Log the incoming file and body data;
     const {
       username,
       email,
@@ -33,10 +33,7 @@ export const RegisterUser = async (req: Request, res: Response) => {
     } = req.body;
 
     // Validate user input
-    const { error, value } = RegisterSchema.validate(req.body, {
-      abortEarly: false,
-    });
-
+    const { error } = RegisterSchema.validate(req.body, { abortEarly: false });
     if (error) {
       return res
         .status(400)
@@ -48,31 +45,85 @@ export const RegisterUser = async (req: Request, res: Response) => {
       return res.status(400).json({ Error: "Passwords do not match" });
     }
 
-    // Hashing password
+    // Hash the password
     const passwordHash = await bcrypt.hash(password, await bcrypt.genSalt(12));
 
+    // Check if the user already exists
     const existingUser = await UserModel.findOne({ email });
-
-    // Create a new user document if the user doesn't already exist
-    if (!existingUser) {
-      const newUser = await UserModel.create({
-        username,
-        email,
-        password: passwordHash, // Use the URL of the uploaded picture
-        phone_number,
-        country,
-        role,
-      });
-      return res.status(200).json({ msg: "Registration successful", newUser });
+    if (existingUser) {
+      return res.status(400).json({ error: "User already exists" });
     }
-    return res.status(400).json({ error: "User already exists" });
+
+    // Create new user but set isActive to false until verified
+    const newUser = await UserModel.create({
+      username,
+      email,
+      password: passwordHash,
+      phone_number,
+      country,
+      role,
+      isActive: false, // Ensure user is inactive until email verification
+    });
+
+    // Generate verification token
+    const verificationToken = jwt.sign({ userId: newUser._id }, jwtsecret, { expiresIn: "1h" });
+    const verificationUrl = `http://localhost:2025/users/verify-email?token=${verificationToken}`;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: newUser.email,
+      subject: "Verify your email address",
+      html: `<p>Click <a href="${verificationUrl}">here</a> to verify your email and activate your account.</p>`,
+    };
+
+    await transport.sendMail(mailOptions);
+
+    return res
+      .status(201)
+      .json({ msg: "Registration successful! Please check your email to verify your account." });
   } catch (error) {
-    console.error(error);
+    console.error("Registration error:", error);
     return res.status(500).json({
       message: "Internal server error",
     });
   }
 };
+
+
+
+// Email verification handler
+export const verifyEmail = async (req: Request, res: Response) => {
+  const { token } = req.query;
+
+  try {
+    // Verify the token
+    const decoded = jwt.verify(token as string, jwtsecret) as { userId: string };
+
+    // Find the user by ID and activate the account
+    const user = await UserModel.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    if (user.isActive) {
+      return res.status(400).json({ message: "Account already verified." });
+    }
+
+    user.isActive = true; // Activate the user account
+    await user.save();
+
+    // Redirect to login page after successful verification
+    res.redirect("/http://127.0.0.1:5500/login.html"); // Make sure this path matches your frontend's login page
+  } catch (error) {
+    console.error("Verification error:", error);
+    return res.status(400).json({ message: "Invalid or expired token." });
+  }
+};
+
+
+
+
 
 export const loginUser = async (req: Request, res: Response) => {
   try {

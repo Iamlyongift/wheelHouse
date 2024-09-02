@@ -9,17 +9,17 @@ exports.RegisterSchema = joi_1.default.object({
     username: joi_1.default.string().min(3).max(30).required(),
     email: joi_1.default.string().email().required(),
     password: joi_1.default.string()
-        .min(6)
-        .regex(/^[a-zA-Z0-9]{3,30}$/)
+        .min(8)
+        .regex(/^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};':"\\|,.<>\/?]{8,30}$/)
         .required(),
     confirm_password: joi_1.default.string()
-        .valid(joi_1.default.ref("password"))
+        .valid(joi_1.default.ref('password'))
         .required()
-        .label("confirm_password")
-        .messages({ "any.only": "{{#label}} does not match" }),
-    phone_number: joi_1.default.string().required(),
+        .label('confirm_password')
+        .messages({ 'any.only': '{{#label}} does not match' }),
+    phone_number: joi_1.default.string().min(7).max(15).required(),
     country: joi_1.default.string().required(),
-    profile_photo: joi_1.default.string(),
+    profile_photo: joi_1.default.string().uri(),
 });
 exports.LoginSchema = joi_1.default.object({
     email: joi_1.default.string().required(),
@@ -40,7 +40,6 @@ exports.adminRegistrationSchema = joi_1.default.object({
     username: joi_1.default.string().alphanum().min(3).max(30).required(),
     email: joi_1.default.string().email().required(),
     password: joi_1.default.string().pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")).required(),
-    adminKey: joi_1.default.string().required(),
 });
 exports.adminLoginSchema = joi_1.default.object({
     username: joi_1.default.string().required(),

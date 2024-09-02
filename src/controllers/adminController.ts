@@ -20,12 +20,10 @@ export const adminRegister = async (req: Request, res: Response) => {
       return res.status(400).json({ message: error.details[0].message });
     }
 
-    const { username, email, password, adminKey } = value;
+    const { username, email, password } = value;
 
-    // Check if the adminKey is correct
-    if (adminKey !== adminKey) {
-      return res.status(403).json({ message: "Invalid admin key" });
-    }
+
+
 
     // Check if the username already exists
     const existingUser = await UserModel.findOne({ username });

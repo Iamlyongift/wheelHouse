@@ -60,11 +60,13 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
+  getCategory,
 } from "../controllers/adminCategoryController";
 
 router.post("/categories", createCategory);
 router.put("/categories/:categoryId", updateCategory);
 router.delete("/categories/:categoryId", deleteCategory);
+router.get("/getcategories", getCategory)
 
 //inventory route
 router.get("/inventory-report", getInventoryReport);

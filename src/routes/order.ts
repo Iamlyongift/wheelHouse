@@ -8,7 +8,7 @@ import {
   getOrder,
   updateOrder,
 } from "../controllers/orderController";
-import OrderModel from "../models/OrderModel";
+
 
 const router = express.Router();
 

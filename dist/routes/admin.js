@@ -33,5 +33,6 @@ const adminCategoryController_1 = require("../controllers/adminCategoryControlle
 router.post("/categories", adminCategoryController_1.createCategory);
 router.put("/categories/:categoryId", adminCategoryController_1.updateCategory);
 router.delete("/categories/:categoryId", adminCategoryController_1.deleteCategory);
+router.get("/getcategories", adminCategoryController_1.getCategory);
 router.get("/inventory-report", adminMetricsController_1.getInventoryReport);
 exports.default = router;

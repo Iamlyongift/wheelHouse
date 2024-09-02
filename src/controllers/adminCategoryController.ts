@@ -59,3 +59,17 @@ export const deleteCategory = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error deleting category" });
   }
 };
+
+
+export const getCategory = async (req: Request, res: Response) => {
+  try {
+    // Fetch categories from the database
+    const categories = await CategoryModel.find({});
+  
+    // Send the categories in the response
+    res.status(200).json({ categories });
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ error: 'An error occurred while fetching categories' });
+  }
+}

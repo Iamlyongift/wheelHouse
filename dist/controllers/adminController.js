@@ -24,10 +24,7 @@ const adminRegister = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         if (error) {
             return res.status(400).json({ message: error.details[0].message });
         }
-        const { username, email, password, adminKey } = value;
-        if (adminKey !== adminKey) {
-            return res.status(403).json({ message: "Invalid admin key" });
-        }
+        const { username, email, password } = value;
         const existingUser = yield UserModel_1.default.findOne({ username });
         if (existingUser) {
             return res.status(400).json({ message: "Username already exists" });

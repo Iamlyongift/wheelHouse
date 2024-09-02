@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCategory = exports.updateCategory = exports.createCategory = void 0;
+exports.getCategory = exports.deleteCategory = exports.updateCategory = exports.createCategory = void 0;
 const CategoryModel_1 = __importDefault(require("../models/CategoryModel"));
 const utils_1 = require("../utils/utils");
 const createCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -69,3 +69,14 @@ const deleteCategory = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.deleteCategory = deleteCategory;
+const getCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const categories = yield CategoryModel_1.default.find({});
+        res.status(200).json({ categories });
+    }
+    catch (error) {
+        console.error('Error fetching categories:', error);
+        res.status(500).json({ error: 'An error occurred while fetching categories' });
+    }
+});
+exports.getCategory = getCategory;

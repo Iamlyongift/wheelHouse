@@ -1,21 +1,24 @@
 import Joi from "joi";
 
+
+
 export const RegisterSchema = Joi.object({
   username: Joi.string().min(3).max(30).required(),
   email: Joi.string().email().required(),
   password: Joi.string()
-    .min(6)
-    .regex(/^[a-zA-Z0-9]{3,30}$/)
+    .min(8) // Adjusted minimum length to 8 for better security
+    .regex(/^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};':"\\|,.<>\/?]{8,30}$/) // Updated regex to include special characters
     .required(),
   confirm_password: Joi.string()
-    .valid(Joi.ref("password"))
+    .valid(Joi.ref('password'))
     .required()
-    .label("confirm_password")
-    .messages({ "any.only": "{{#label}} does not match" }),
-  phone_number: Joi.string().required(),
+    .label('confirm_password')
+    .messages({ 'any.only': '{{#label}} does not match' }),
+  phone_number: Joi.string().min(7).max(15).required(), // Adjusted length based on common phone number formats
   country: Joi.string().required(),
-  profile_photo: Joi.string(),
+  profile_photo: Joi.string().uri(), // Assuming profile_photo is a URL; adjust if needed
 });
+
 
 export const LoginSchema = Joi.object({
   email: Joi.string().required(),
@@ -38,7 +41,6 @@ export const adminRegistrationSchema = Joi.object({
   username: Joi.string().alphanum().min(3).max(30).required(),
   email: Joi.string().email().required(),
   password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")).required(),
-  adminKey: Joi.string().required(),
 });
 
 export const adminLoginSchema = Joi.object({
