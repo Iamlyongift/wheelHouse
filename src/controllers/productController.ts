@@ -7,7 +7,6 @@ import {
 } from "../utils/utils";
 import { v2 as cloudinaryV2 } from "cloudinary";
 import CategoryModel from "../models/CategoryModel";
-// import transporter from "../emailConfig";
 import transport from "../emailConfig";
 
 export const createProduct = async (req: Request, res: Response) => {
@@ -18,7 +17,7 @@ export const createProduct = async (req: Request, res: Response) => {
       console.log(
         "Validation Error:",
         validateProduct.error.details[0].message
-      );
+      )
       return res
         .status(400)
         .json({ Error: validateProduct.error.details[0].message });
@@ -95,7 +94,7 @@ export const getAllProducts = async (req: Request, res: Response) => {
   try {
     const getAllProduct = await ProductModel.find().populate("orders");
     res.status(200).json({
-      msg: "Program sucessfully fetched",
+      msg: "Product sucessfully fetched",
       getAllProduct,
     });
   } catch (error) {

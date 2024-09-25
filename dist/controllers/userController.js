@@ -26,18 +26,24 @@ const jwtsecret = process.env.JWT_SECRET;
 const RegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, email, password, confirm_password, phone_number, country, role, } = req.body;
+        console.log("Received registration data:", req.body);
         const { error } = utils_1.RegisterSchema.validate(req.body, { abortEarly: false });
         if (error) {
+            console.error("Validation error:", error.details);
             return res
                 .status(400)
                 .json({ Error: error.details.map((err) => err.message) });
         }
         if (password !== confirm_password) {
+            console.error("Password mismatch:", { password, confirm_password });
             return res.status(400).json({ Error: "Passwords do not match" });
         }
-        const passwordHash = yield bcryptjs_1.default.hash(password, yield bcryptjs_1.default.genSalt(12));
+        const salt = yield bcryptjs_1.default.genSalt(12);
+        const passwordHash = yield bcryptjs_1.default.hash(password, salt);
+        console.log("Generated password hash:", passwordHash);
         const existingUser = yield UserModel_1.default.findOne({ email });
         if (existingUser) {
+            console.error("User already exists with email:", email);
             return res.status(400).json({ error: "User already exists" });
         }
         const newUser = yield UserModel_1.default.create({
@@ -49,21 +55,30 @@ const RegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             role,
             isActive: false,
         });
+        console.log("New user created:", newUser);
         const verificationToken = jsonwebtoken_1.default.sign({ userId: newUser._id }, jwtsecret, { expiresIn: "1h" });
         const verificationUrl = `http://localhost:2025/users/verify-email?token=${verificationToken}`;
+        console.log("Generated verification token:", verificationToken);
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: newUser.email,
             subject: "Verify your email address",
-            html: `<p>Click <a href="${verificationUrl}">here</a> to verify your email and activate your account.</p>`,
+            html: `<p>Hello, Welcome to the WHEELHOUSE Family, Kindly click <a href="${verificationUrl}">here</a> to verify your email and activate your account. I am glad that you are reading this email.</p>`,
         };
-        yield emailConfig_1.default.sendMail(mailOptions);
+        console.log("Mail options:", mailOptions);
+        try {
+            yield emailConfig_1.default.sendMail(mailOptions);
+            console.log("Verification email sent successfully to:", newUser.email);
+        }
+        catch (emailError) {
+            console.error("Failed to send verification email:", emailError);
+            return res.status(500).json({ message: "Error sending verification email." });
+        }
         return res
             .status(201)
             .json({ msg: "Registration successful! Please check your email to verify your account." });
     }
     catch (error) {
-        console.error("Registration error:", error);
         return res.status(500).json({
             message: "Internal server error",
         });

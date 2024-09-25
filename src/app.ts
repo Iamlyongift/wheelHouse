@@ -17,8 +17,8 @@ const app = express();
 
 // Set up CORS middleware with multiple allowed origins
 app.use(cors({
-  origin: ['http://127.0.0.1:5500', 'http://127.0.0.1:5501'], // Add your allowed origins
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Include OPTIONS method
+  origin: ['http://127.0.0.1:5500', 'http://127.0.0.1:5501', 'http://127.0.0.1:5502', 'https://wheelhouse.onrender.com'], // Add your frontend origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Include all methods
   credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow necessary headers
 }));

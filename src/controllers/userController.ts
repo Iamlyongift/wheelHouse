@@ -32,9 +32,12 @@ export const RegisterUser = async (req: Request, res: Response) => {
       role,
     } = req.body;
 
+    console.log("Received registration data:", req.body);
+
     // Validate user input
     const { error } = RegisterSchema.validate(req.body, { abortEarly: false });
     if (error) {
+      console.error("Validation error:", error.details);
       return res
         .status(400)
         .json({ Error: error.details.map((err: any) => err.message) });
@@ -42,15 +45,19 @@ export const RegisterUser = async (req: Request, res: Response) => {
 
     // Ensure passwords match
     if (password !== confirm_password) {
+      console.error("Password mismatch:", { password, confirm_password });
       return res.status(400).json({ Error: "Passwords do not match" });
     }
 
     // Hash the password
-    const passwordHash = await bcrypt.hash(password, await bcrypt.genSalt(12));
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash(password, salt);
+    console.log("Generated password hash:", passwordHash);
 
     // Check if the user already exists
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
+      console.error("User already exists with email:", email);
       return res.status(400).json({ error: "User already exists" });
     }
 
@@ -65,29 +72,43 @@ export const RegisterUser = async (req: Request, res: Response) => {
       isActive: false, // Ensure user is inactive until email verification
     });
 
+    console.log("New user created:", newUser);
+
     // Generate verification token
     const verificationToken = jwt.sign({ userId: newUser._id }, jwtsecret, { expiresIn: "1h" });
     const verificationUrl = `http://localhost:2025/users/verify-email?token=${verificationToken}`;
+    console.log("Generated verification token:", verificationToken);
 
+    // Set up email options
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: newUser.email,
       subject: "Verify your email address",
-      html: `<p>Click <a href="${verificationUrl}">here</a> to verify your email and activate your account.</p>`,
+      html: `<p>Hello, Welcome to the WHEELHOUSE Family, Kindly click <a href="${verificationUrl}">here</a> to verify your email and activate your account. I am glad that you are reading this email.</p>`,
     };
 
-    await transport.sendMail(mailOptions);
+    
+    console.log("Mail options:", mailOptions);
+
+    // Send the verification email
+    try {
+      await transport.sendMail(mailOptions);
+      console.log("Verification email sent successfully to:", newUser.email);
+    } catch (emailError) {
+      console.error("Failed to send verification email:", emailError);
+      return res.status(500).json({ message: "Error sending verification email." });
+    }
 
     return res
       .status(201)
       .json({ msg: "Registration successful! Please check your email to verify your account." });
   } catch (error) {
-    console.error("Registration error:", error);
     return res.status(500).json({
       message: "Internal server error",
     });
   }
 };
+
 
 
 

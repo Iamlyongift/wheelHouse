@@ -59,7 +59,7 @@ exports.creatProductSchema = joi_1.default.object({
     price: joi_1.default.string().required(),
     description: joi_1.default.string().required(),
     stock: joi_1.default.number().required(),
-    image: joi_1.default.array().items(joi_1.default.string()),
+    images: joi_1.default.array().items(joi_1.default.string()),
 });
 exports.updateProductSchema = joi_1.default.object({
     item_name: joi_1.default.string().optional(),

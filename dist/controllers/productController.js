@@ -82,7 +82,7 @@ const getAllProducts = (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         const getAllProduct = yield ProductModel_1.default.find().populate("orders");
         res.status(200).json({
-            msg: "Program sucessfully fetched",
+            msg: "Product sucessfully fetched",
             getAllProduct,
         });
     }

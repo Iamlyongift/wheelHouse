@@ -64,7 +64,7 @@ export const creatProductSchema = Joi.object({
   price: Joi.string().required(),
   description: Joi.string().required(),
   stock: Joi.number().required(),
-  image: Joi.array().items(Joi.string()),
+  images: Joi.array().items(Joi.string()),
 });
 
 export const updateProductSchema = Joi.object({
