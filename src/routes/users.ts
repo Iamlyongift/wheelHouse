@@ -43,7 +43,7 @@ router.post("/orders/:orderId/upload-receipt", upload.single("receipt"));
 router.put("/admin/orders/:orderId/verify-payment", verifyPayment);
 
 // Wishlist and cart
-router.get("/wishlist", addToWishlist);
+router.get("/ ", addToWishlist);
 router.get("/cart", addToCart);
 
 export default router;
