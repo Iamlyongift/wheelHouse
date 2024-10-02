@@ -7,24 +7,25 @@ import cors from "cors";
 import indexRouter from "./routes/index";
 import usersRouter from "./routes/users";
 import adminRouter from "./routes/admin";
-import orderRouter from "./routes/order";
-import paymentRouter from "./routes/payment";
-import dotenv from 'dotenv';
+
+import dotenv from "dotenv";
 
 dotenv.config();
 
 const app = express();
 
 // Set up CORS middleware with multiple allowed origins
-app.use(cors({
-  origin: ['http://127.0.0.1:5500', 'http://127.0.0.1:5501', 'http://127.0.0.1:5502', 'https://wheelhouse.onrender.com'], // Add your frontend origin
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Include all methods
-  credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allow necessary headers
-}));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://wheelhouse.onrender.com"], // Add your frontend origin
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // Include all methods
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+    allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
+  })
+);
 
 // Ensure OPTIONS requests are properly handled
-app.options('*', cors());
+app.options("*", cors());
 // View engine setup
 app.set("views", path.join(__dirname, "../views"));
 app.set("view engine", "jade");
@@ -48,11 +49,18 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // Error handler
-app.use((err: createError.HttpError, req: Request, res: Response, next: NextFunction) => {
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
-  res.status(err.status || 500);
-  res.render("error");
-});
+app.use(
+  (
+    err: createError.HttpError,
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    res.locals.message = err.message;
+    res.locals.error = req.app.get("env") === "development" ? err : {};
+    res.status(err.status || 500);
+    res.render("error");
+  }
+);
 
 export default app;

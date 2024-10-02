@@ -1,8 +1,6 @@
 import express from "express";
 import {
-  addToCart,
   addToWishlist,
-  getOrderHistory,
   getProfile,
   loginUser,
   RegisterUser,
@@ -10,14 +8,12 @@ import {
   verifyEmail,
 } from "../controllers/userController";
 import { auth } from "../middleware/Auth"; // Ensure the path is correct
-import { bankDetail, verifyPayment } from "../controllers/payment";
-import { upload } from "../library/helpers/UploadImages";
 
 const router = express.Router();
 
 // Public routes
 router.post("/register", RegisterUser);
-router.get("/verify-email", verifyEmail); 
+router.get("/verify-email", verifyEmail);
 router.post("/login", loginUser);
 
 // Add the verify endpoint to check if the user is authenticated
@@ -36,14 +32,7 @@ router.use(auth);
 router.put("/update_profile", updateUserProfile);
 router.get("/profile/:userId", getProfile);
 
-// Orders and payment
-router.get("/:userId/orders", getOrderHistory);
-router.get("/orders/:orderId/bank-details", bankDetail);
-router.post("/orders/:orderId/upload-receipt", upload.single("receipt"));
-router.put("/admin/orders/:orderId/verify-payment", verifyPayment);
-
 // Wishlist and cart
 router.get("/ ", addToWishlist);
-router.get("/cart", addToCart);
 
 export default router;

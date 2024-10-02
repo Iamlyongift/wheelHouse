@@ -1,7 +1,7 @@
 import express from "express";
 import { adminLogin, adminRegister } from "../controllers/adminController";
 import { auth, requireAdmin } from "../middleware/Auth";
-import { verifyPayment } from "../controllers/payment";
+
 const router = express.Router();
 
 //adminLogs
@@ -12,22 +12,6 @@ router.use(auth, requireAdmin);
 //payment
 
 router.use(auth, requireAdmin);
-router.put("/verify-payment/:orderId", verifyPayment);
-
-//metrics
-import {
-  getTotalSales,
-  getActiveOrdersCount,
-  getLowStockAlerts,
-  getRecentActivities,
-  getInventoryReport,
-} from "../controllers/adminMetricsController";
-
-router.get("/total-sales", getTotalSales);
-router.get("/active-orders", getActiveOrdersCount);
-router.get("/low-stock-alerts", getLowStockAlerts);
-router.get("/recent-activities", getRecentActivities);
-router.get("/get-inventory-report", getInventoryReport);
 
 //user/admin management
 import {
@@ -46,15 +30,6 @@ router.patch("/users/:userId/reset-password", resetUserPassword);
 router.post("/creatAdmin", createAdminUser);
 router.patch("/users/:userId/assign-role", assignAdminRole);
 
-//Reports
-import {
-  generateSalesReport,
-  getUserAnalytics,
-} from "../controllers/adminReportsController";
-
-router.get("/reports", generateSalesReport);
-router.get("/analytics/users", getUserAnalytics);
-
 //Category
 import {
   createCategory,
@@ -66,8 +41,8 @@ import {
 router.post("/categories", createCategory);
 router.put("/categories/:categoryId", updateCategory);
 router.delete("/categories/:categoryId", deleteCategory);
-router.get("/getcategories", getCategory)
+router.get("/getcategories", getCategory);
 
 //inventory route
-router.get("/inventory-report", getInventoryReport);
+
 export default router;

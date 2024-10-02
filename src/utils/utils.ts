@@ -1,7 +1,5 @@
 import Joi from "joi";
 
-
-
 export const RegisterSchema = Joi.object({
   username: Joi.string().min(3).max(30).required(),
   email: Joi.string().email().required(),
@@ -10,15 +8,14 @@ export const RegisterSchema = Joi.object({
     .regex(/^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};':"\\|,.<>\/?]{8,30}$/) // Updated regex to include special characters
     .required(),
   confirm_password: Joi.string()
-    .valid(Joi.ref('password'))
+    .valid(Joi.ref("password"))
     .required()
-    .label('confirm_password')
-    .messages({ 'any.only': '{{#label}} does not match' }),
+    .label("confirm_password")
+    .messages({ "any.only": "{{#label}} does not match" }),
   phone_number: Joi.string().min(7).max(15).required(), // Adjusted length based on common phone number formats
   country: Joi.string().required(),
   profile_photo: Joi.string().uri(), // Assuming profile_photo is a URL; adjust if needed
 });
-
 
 export const LoginSchema = Joi.object({
   email: Joi.string().required(),
@@ -90,43 +87,13 @@ export const categorySchema = Joi.object({
   name: Joi.string().min(2).max(100).required(),
   description: Joi.string().min(10).max(1000).optional(),
 });
+
 export const productSchema = Joi.object({
   item_name: Joi.string().min(2).max(100).required(),
   description: Joi.string().min(10).max(1000).required(),
   price: Joi.number().min(0.01).max(1000000).required(),
   stock: Joi.number().integer().min(0).required(),
   image: Joi.array().items(Joi.string().uri()).min(1).max(5),
-});
-
-export const orderSchema = Joi.object({
-  userId: Joi.string().required(),
-  items: Joi.array()
-    .items(
-      Joi.object({
-        product: Joi.string()
-          .regex(/^[0-9a-fA-F]{24}$/)
-          .required(),
-        quantity: Joi.number().integer().positive().required(),
-      })
-    )
-    .min(1)
-    .max(10)
-    .required(),
-  shippingDetails: Joi.object({
-    name: Joi.string().required(),
-    address: Joi.string().required(),
-    city: Joi.string().required(),
-    country: Joi.string().required(),
-    postalCode: Joi.string().required(),
-  }).required(),
-});
-
-export const updateOrderSchema = Joi.object({
-  status: Joi.string().valid("pending", "approved", "rejected"),
-});
-
-export const verifyPaymentSchema = Joi.object({
-  status: Joi.string().valid("approved", "rejected").required(),
 });
 
 export const wishlistSchema = Joi.object({
@@ -141,29 +108,6 @@ export const wishlistSchema = Joi.object({
     )
     .min(1)
     .required(),
-});
-
-export const cartSchema = Joi.object({
-  userId: Joi.string().required(),
-  items: Joi.array()
-    .items(
-      Joi.object({
-        product: Joi.string()
-          .regex(/^[0-9a-fA-F]{24}$/)
-          .required(),
-        quantity: Joi.number().min(1).required(),
-      })
-    )
-    .min(1)
-    .required(),
-});
-
-export const orderHistorySchema = Joi.object({
-  status: Joi.string()
-    .valid("pending", "approved", "rejected", "paid")
-    .optional(),
-  startDate: Joi.date().iso().optional(),
-  endDate: Joi.date().iso().optional(),
 });
 
 export const userIdSchema = Joi.object({
