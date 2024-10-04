@@ -7,6 +7,10 @@ import {
   updateUserProfile,
   verifyEmail,
 } from "../controllers/userController";
+import {
+  createTestimonial,
+  getTestimonials,
+} from "../controllers/TestimonialController";
 import { auth } from "../middleware/Auth"; // Ensure the path is correct
 
 const router = express.Router();
@@ -26,12 +30,13 @@ router.get("/verify", auth, (req, res) => {
 });
 
 // Protected routes - Require authentication
-router.use(auth);
+router.get("/testimonials", getTestimonials);
 
+router.use(auth);
+router.post("/create-testimonials", createTestimonial);
 // User profile and updates
 router.put("/update_profile", updateUserProfile);
 router.get("/profile/:userId", getProfile);
-
 // Wishlist and cart
 router.get("/wishlist", addToWishlist);
 

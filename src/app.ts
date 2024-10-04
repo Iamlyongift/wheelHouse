@@ -7,7 +7,6 @@ import cors from "cors";
 import indexRouter from "./routes/index";
 import usersRouter from "./routes/users";
 import adminRouter from "./routes/admin";
-import testimonialRouter from "./routes/Testimonials"
 
 import dotenv from "dotenv";
 
@@ -41,7 +40,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/product", indexRouter);
 app.use("/users", usersRouter);
 app.use("/admin", adminRouter);
-app.use("/api", testimonialRouter);
 
 // Catch 404 and forward to error handler
 app.use((req: Request, res: Response, next: NextFunction) => {
