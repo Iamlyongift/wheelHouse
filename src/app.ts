@@ -17,7 +17,7 @@ const app = express();
 // Set up CORS middleware with multiple allowed origins
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://wheelhouse.onrender.com"], // Add your frontend origin
+    origin: ["http://localhost:5173/", "https://wheelhouse.onrender.com"], // Add your frontend origin
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // Include all methods
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
     allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
