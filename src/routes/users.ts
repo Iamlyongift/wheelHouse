@@ -33,6 +33,6 @@ router.put("/update_profile", updateUserProfile);
 router.get("/profile/:userId", getProfile);
 
 // Wishlist and cart
-router.get("/ ", addToWishlist);
+router.get("/wishlist", addToWishlist);
 
 export default router;

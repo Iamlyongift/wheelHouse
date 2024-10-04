@@ -43,6 +43,6 @@ router.put("/categories/:categoryId", updateCategory);
 router.delete("/categories/:categoryId", deleteCategory);
 router.get("/getcategories", getCategory);
 
-//inventory route
+
 
 export default router;

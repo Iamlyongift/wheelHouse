@@ -3,9 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import UserModel from "../models/UserModel";
 import {
-  cartSchema,
   LoginSchema,
-  orderHistorySchema,
   RegisterSchema,
   updateProfileSchema,
   userIdSchema,
@@ -100,11 +98,9 @@ export const RegisterUser = async (req: Request, res: Response) => {
         .json({ message: "Error sending verification email." });
     }
 
-    return res
-      .status(201)
-      .json({
-        msg: "Registration successful! Please check your email to verify your account.",
-      });
+    return res.status(201).json({
+      msg: "Registration successful! Please check your email to verify your account.",
+    });
   } catch (error) {
     return res.status(500).json({
       message: "Internal server error",
@@ -253,7 +249,6 @@ export const addToWishlist = async (req: Request, res: Response) => {
     });
   }
 };
-
 
 export const getProfile = async (req: Request, res: Response) => {
   try {
