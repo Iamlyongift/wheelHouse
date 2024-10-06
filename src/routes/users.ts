@@ -12,11 +12,12 @@ import {
   getTestimonials,
 } from "../controllers/TestimonialController";
 import { auth } from "../middleware/Auth"; // Ensure the path is correct
+import { upload } from "../library/helpers/UploadImages";
 
 const router = express.Router();
 
 // Public routes
-router.post("/register", RegisterUser);
+router.post("/register",  upload.single('profilePhoto'), RegisterUser);
 router.get("/verify-email", verifyEmail);
 router.post("/login", loginUser);
 

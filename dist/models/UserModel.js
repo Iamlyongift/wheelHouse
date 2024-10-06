@@ -37,11 +37,11 @@ const userSchema = new mongoose_1.Schema({
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    phone_number: { type: String, required: false },
+    phoneNumber: { type: String, required: true },
     country: { type: String, required: false },
+    profilePhoto: { type: String, required: false },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     isActive: { type: Boolean, default: true },
-    Orders: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: "User" }],
 }, { timestamps: true });
 userSchema.methods.toggleAccountStatus = function () {
     return __awaiter(this, void 0, void 0, function* () {

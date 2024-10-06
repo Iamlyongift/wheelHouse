@@ -12,9 +12,9 @@ export const RegisterSchema = Joi.object({
     .required()
     .label("confirm_password")
     .messages({ "any.only": "{{#label}} does not match" }),
-  phone_number: Joi.string().min(7).max(15).required(), // Adjusted length based on common phone number formats
+  phoneNumber: Joi.string().min(7).max(15).required(), // Adjusted length based on common phone number formats
   country: Joi.string().required(),
-  profile_photo: Joi.string().uri(), // Assuming profile_photo is a URL; adjust if needed
+  profilePhoto: Joi.string().uri().optional(), // Assuming profile_photo is a URL; adjust if needed
 });
 
 export const LoginSchema = Joi.object({

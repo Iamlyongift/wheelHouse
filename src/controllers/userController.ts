@@ -11,8 +11,8 @@ import {
 } from "../utils/utils";
 
 import WishlistModel from "../models/whishlistModel";
-
 import transport from "../emailConfig";
+import { v2 as cloudinaryV2 } from "cloudinary";
 
 const jwtsecret = process.env.JWT_SECRET as string;
 
@@ -23,7 +23,7 @@ export const RegisterUser = async (req: Request, res: Response) => {
       email,
       password,
       confirm_password,
-      phone_number,
+      phoneNumber,
       country,
       role,
     } = req.body;
@@ -57,13 +57,25 @@ export const RegisterUser = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "User already exists" });
     }
 
+    let pictureUrl = "";
+    // Check if a file was uploaded
+    if (req.file) {
+      // Upload the image to Cloudinary and retrieve its URL
+      const result = await cloudinaryV2.uploader.upload(req.file.path);
+      pictureUrl = result.secure_url; // Store the URL of the uploaded picture
+    }
+   
+    // Check if a file was uploaded
+  
+
     // Create new user but set isActive to false until verified
     const newUser = await UserModel.create({
       username,
       email,
       password: passwordHash,
-      phone_number,
+      phoneNumber,
       country,
+      profilePhoto: pictureUrl,
       role,
       isActive: false, // Ensure user is inactive until email verification
     });

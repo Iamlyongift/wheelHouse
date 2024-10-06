@@ -3,7 +3,7 @@ import express, { Request, Response, NextFunction } from "express";
 import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
-import cors from "cors";
+import cors from "cors"
 import indexRouter from "./routes/index";
 import usersRouter from "./routes/users";
 import adminRouter from "./routes/admin";
@@ -17,15 +17,14 @@ const app = express();
 // Set up CORS middleware with multiple allowed origins
 app.use(
   cors({
-    origin: ["http://localhost:5173/", "https://wheelhouse.onrender.com"], // Add your frontend origin
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // Include all methods
-    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-    allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
+    origin: ["http://localhost:5173", "https://wheelhouse.onrender.com"], // Add frontend URLs
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // Allow required methods
+    credentials: true, // Allow cookies or authorization headers
+    allowedHeaders: ["Content-Type", "Authorization"], // Allow headers that are needed
   })
 );
+app.options('*', cors());
 
-// Ensure OPTIONS requests are properly handled
-app.options("*", cors());
 // View engine setup
 app.set("views", path.join(__dirname, "../views"));
 app.set("view engine", "jade");

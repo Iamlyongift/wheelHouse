@@ -12,20 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProfile = exports.addToCart = exports.addToWishlist = exports.getOrderHistory = exports.uploadProof = exports.updateUserProfile = exports.loginUser = exports.verifyEmail = exports.RegisterUser = void 0;
+exports.getProfile = exports.addToWishlist = exports.updateUserProfile = exports.loginUser = exports.verifyEmail = exports.RegisterUser = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const UserModel_1 = __importDefault(require("../models/UserModel"));
-const cloudinary_1 = require("cloudinary");
 const utils_1 = require("../utils/utils");
-const OrderModel_1 = __importDefault(require("../models/OrderModel"));
 const whishlistModel_1 = __importDefault(require("../models/whishlistModel"));
-const CartModel_1 = __importDefault(require("../models/CartModel"));
 const emailConfig_1 = __importDefault(require("../emailConfig"));
+const cloudinary_1 = require("cloudinary");
 const jwtsecret = process.env.JWT_SECRET;
 const RegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { username, email, password, confirm_password, phone_number, country, role, } = req.body;
+        const { username, email, password, confirm_password, phoneNumber, country, role, } = req.body;
         console.log("Received registration data:", req.body);
         const { error } = utils_1.RegisterSchema.validate(req.body, { abortEarly: false });
         if (error) {
@@ -46,24 +44,32 @@ const RegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             console.error("User already exists with email:", email);
             return res.status(400).json({ error: "User already exists" });
         }
+        let pictureUrl = "";
+        if (req.file) {
+            const result = yield cloudinary_1.v2.uploader.upload(req.file.path);
+            pictureUrl = result.secure_url;
+        }
         const newUser = yield UserModel_1.default.create({
             username,
             email,
             password: passwordHash,
-            phone_number,
+            phoneNumber,
             country,
+            profilePhoto: pictureUrl,
             role,
             isActive: false,
         });
         console.log("New user created:", newUser);
-        const verificationToken = jsonwebtoken_1.default.sign({ userId: newUser._id }, jwtsecret, { expiresIn: "1h" });
+        const verificationToken = jsonwebtoken_1.default.sign({ userId: newUser._id }, jwtsecret, {
+            expiresIn: "1h",
+        });
         const verificationUrl = `http://localhost:2025/users/verify-email?token=${verificationToken}`;
         console.log("Generated verification token:", verificationToken);
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: newUser.email,
             subject: "Verify your email address",
-            html: `<p>Hello, Welcome to the WHEELHOUSE Family, Kindly click <a href="${verificationUrl}">here</a> to verify your email and activate your account. I am glad that you are reading this email.</p>`,
+            html: `<p>Hello, Welcome to the Cribs&ride Family, Kindly click <a href="${verificationUrl}">here</a> to verify your email and activate your account. I am glad that you are reading this email.</p>`,
         };
         console.log("Mail options:", mailOptions);
         try {
@@ -72,11 +78,13 @@ const RegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         }
         catch (emailError) {
             console.error("Failed to send verification email:", emailError);
-            return res.status(500).json({ message: "Error sending verification email." });
+            return res
+                .status(500)
+                .json({ message: "Error sending verification email." });
         }
-        return res
-            .status(201)
-            .json({ msg: "Registration successful! Please check your email to verify your account." });
+        return res.status(201).json({
+            msg: "Registration successful! Please check your email to verify your account.",
+        });
     }
     catch (error) {
         return res.status(500).json({
@@ -98,7 +106,7 @@ const verifyEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         }
         user.isActive = true;
         yield user.save();
-        res.redirect("/http://127.0.0.1:5500/login.html");
+        res.redirect("http://localhost:5173/login");
     }
     catch (error) {
         console.error("Verification error:", error);
@@ -167,96 +175,6 @@ const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.updateUserProfile = updateUserProfile;
-const uploadProof = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { orderId } = req.params;
-        const order = yield OrderModel_1.default.findById(orderId);
-        if (!order) {
-            return res.status(404).json({ message: "Order not found" });
-        }
-        let pictureUrl = "";
-        if (req.file) {
-            try {
-                const result = yield cloudinary_1.v2.uploader.upload(req.file.path);
-                pictureUrl = result.secure_url;
-            }
-            catch (uploadError) {
-                console.error("Cloudinary upload error:", uploadError);
-                return res.status(500).json({ message: "Error uploading image" });
-            }
-        }
-        else {
-            pictureUrl = req.body.image || "";
-        }
-        if (!pictureUrl) {
-            return res.status(400).json({ message: "No receipt uploaded" });
-        }
-        const receiptUrl = pictureUrl;
-        order.receiptPath = receiptUrl;
-        order.status = "pending";
-        yield order.save();
-        const orderConfirmationMailOptions = {
-            from: process.env.EMAIL_USER,
-            to: process.env.ADMIN_EMAIL,
-            subject: "New Proof of Payment Uploaded",
-            text: `A new proof of payment has been uploaded for order ID: ${orderId}. Please review and approve the payment`,
-        };
-        yield emailConfig_1.default.sendMail(orderConfirmationMailOptions);
-        res.status(200).json({ message: "Receipt uploaded successfully", order });
-    }
-    catch (error) {
-        console.error("Error creating payment:", error);
-        if (error instanceof Error) {
-            res.status(500).json({ error: error.message });
-        }
-        else {
-            res.status(500).json({ error: "An unknown error occurred" });
-        }
-    }
-});
-exports.uploadProof = uploadProof;
-const getOrderHistory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { error, value } = utils_1.orderHistorySchema.validate(req.query);
-        if (error) {
-            return res.status(400).json({ message: error.details[0].message });
-        }
-        const userId = req.params.userId;
-        const { status, startDate, endDate } = value;
-        if (!userId) {
-            return res.status(400).json({ message: "User ID is required" });
-        }
-        const query = { user: userId };
-        if (status) {
-            query.status = status;
-        }
-        if (startDate || endDate) {
-            query.createdAt = {};
-            if (startDate)
-                query.createdAt.$gte = new Date(startDate);
-            if (endDate)
-                query.createdAt.$lte = new Date(endDate);
-        }
-        console.log("Query:", query);
-        const orders = yield OrderModel_1.default.find(query).sort({ createdAt: -1 });
-        console.log("Orders found:", orders);
-        if (orders.length === 0) {
-            return res.status(404).json({ message: "No orders found" });
-        }
-        res.status(200).json({
-            message: "Order history retrieved successfully",
-            orders,
-        });
-    }
-    catch (err) {
-        console.error("Error retrieving order history:", err);
-        res.status(500).json({
-            message: "Error retrieving order history",
-            error: err.message,
-        });
-    }
-});
-exports.getOrderHistory = getOrderHistory;
 const addToWishlist = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { error, value } = utils_1.wishlistSchema.validate(req.body);
@@ -285,33 +203,6 @@ const addToWishlist = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.addToWishlist = addToWishlist;
-const addToCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { error, value } = utils_1.cartSchema.validate(req.body);
-        if (error) {
-            return res.status(400).json({ message: error.details[0].message });
-        }
-        const { userId, items } = value;
-        let cart = yield CartModel_1.default.findOne({ user: userId });
-        if (!cart) {
-            cart = new CartModel_1.default({ user: userId, items });
-        }
-        else {
-            cart.items = [...cart.items, ...items];
-        }
-        yield cart.save();
-        res.status(200).json({
-            message: "Cart updated successfully",
-            cart,
-        });
-    }
-    catch (err) {
-        res
-            .status(500)
-            .json({ message: "Error updating cart", error: err.message });
-    }
-});
-exports.addToCart = addToCart;
 const getProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { error, value } = utils_1.userIdSchema.validate(req.params);

@@ -4,8 +4,9 @@ export interface UserType extends Document {
   username: string;
   email: string;
   password: string;
-  phone_number?: string;
-  country?: string;
+  phoneNumber: string;
+  country: string;
+  profilePhoto: string;
   role: "user" | "admin";
   isActive: boolean; // New field to track user status
   toggleAccountStatus: () => Promise<void>; // Method to toggle account status
@@ -16,11 +17,12 @@ const userSchema = new Schema(
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    phone_number: { type: String, required: false },
+    phoneNumber: { type: String, required: true },
     country: { type: String, required: false },
+    profilePhoto: { type: String, required: false },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     isActive: { type: Boolean, default: true }, // Added isActive field with default value
-    Orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+ 
   },
   { timestamps: true }
 );
