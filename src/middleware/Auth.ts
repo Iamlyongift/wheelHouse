@@ -29,11 +29,8 @@ export const auth = async (
     } catch (jwtError) {
       return res.status(401).json({ message: "Invalid token" });
     }
-    console.log("Token:", token);
-    console.log("Decoded:", decoded);
 
     const user = await UserModel.findById(decoded._id);
-    console.log("User found:", user);
     if (!user) {
       return res.status(404).json({
         message: "User not found",

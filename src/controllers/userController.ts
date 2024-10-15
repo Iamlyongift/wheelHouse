@@ -15,6 +15,13 @@ import transport from "../emailConfig";
 import { v2 as cloudinaryV2 } from "cloudinary";
 
 const jwtsecret = process.env.JWT_SECRET as string;
+interface AuthenticatedRequest extends Request {
+  user?: {
+    _id: string;
+    email: string;
+    
+  };
+}
 
 export const RegisterUser = async (req: Request, res: Response) => {
   try {
@@ -103,7 +110,6 @@ export const RegisterUser = async (req: Request, res: Response) => {
         <a href="${verificationUrl}">Verify your account here</a>
       `,
     };
-    
 
     console.log("Mail options:", mailOptions);
 
@@ -205,7 +211,7 @@ export const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-export const updateUserProfile = async (req: Request, res: Response) => {
+export const updateUserProfile = async (req: AuthenticatedRequest, res: Response) => {
   try {
     // Destructure required fields from the request body
     const { username, password, confirm_password } = req.body;
@@ -267,10 +273,9 @@ export const updateUserProfile = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: "User updated", profile });
   } catch (error) {
-    console.error("Error:", error); // Log the actual error
     res.status(500).json({
       message: "An unexpected error occurred",
-      error: error.message,
+      error,
     });
   }
 };

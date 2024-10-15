@@ -201,10 +201,9 @@ const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, functi
         res.status(200).json({ message: "User updated", profile });
     }
     catch (error) {
-        console.error("Error:", error);
         res.status(500).json({
             message: "An unexpected error occurred",
-            error: error.message,
+            error,
         });
     }
 });
