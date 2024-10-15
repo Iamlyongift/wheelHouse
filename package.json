@@ -2,12 +2,12 @@
   "name": "e-commerce-latest",
   "version": "0.0.0",
   "private": true,
-  "scripts": {
-    "dev": "nodemon ./bin/www",
-    "compile": "tsc -w",
-    "build": "tsc",
-    "start": "tsc"
-  },
+"scripts": {
+  "dev": "nodemon ./bin/www",
+  "compile": "tsc -w",          
+  "build": "tsc",               
+  "start": "node ./dist/bin/www" 
+},
   "dependencies": {
     "@types/stripe": "^8.0.417",
     "bcryptjs": "^2.4.3",
