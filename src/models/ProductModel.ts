@@ -2,17 +2,18 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface ProductType extends Document {
   _id: mongoose.Types.ObjectId;
-  item_name: string;
-  category: mongoose.Types.ObjectId; // Updated to reference the Category model
+  productName: string;
+  category: mongoose.Types.ObjectId; // Reference to the Category model
   price: number;
   description: string;
   stock: number;
   images: string[];
+  productType: string;  // Added this field to differentiate between house and car
 }
 
 const ProductSchema: Schema = new Schema(
   {
-    item_name: { type: String, required: true },
+    productName: { type: String, required: true },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
@@ -22,12 +23,7 @@ const ProductSchema: Schema = new Schema(
     description: { type: String, required: true },
     stock: { type: Number, required: true, default: 0 },
     images: [{ type: String, required: true }],
-    orders: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
+    productType: { type: String, enum: ['house', 'car'], required: true }, // New field for type
   },
   { timestamps: true }
 );

@@ -1,11 +1,12 @@
 import nodemailer from "nodemailer";
 
 const transport = nodemailer.createTransport({
-  host: "sandbox.smtp.mailtrap.io",
-  port: 2525,
+  service: "gmail", // Use Gmail service
   auth: {
-    user: "ebd3378472c7e4",
-    pass: "959405322a3bd1"
+    user: process.env.EMAIL_USER, // Your Gmail address from .env
+    pass: process.env.EMAIL_PASS  // Your App Password from .env (not the regular Gmail password)
   }
 });
 export default transport;
+// EMAIL_USER = 42e95d365a9619
+// EMAIL_PASS = d7125a9c7e618c

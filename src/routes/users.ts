@@ -11,22 +11,21 @@ import {
   createTestimonial,
   getTestimonials,
 } from "../controllers/TestimonialController";
-import { auth } from "../middleware/Auth"; // Ensure the path is correct
+import { auth } from "../middleware/Auth";
 import { upload } from "../library/helpers/UploadImages";
+import { submitContactForm } from "../controllers/ContactController";
 
 const router = express.Router();
 
 // Public routes
-router.post("/register",  upload.single('profilePhoto'), RegisterUser);
+router.post("/register", upload.single("profilePhoto"), RegisterUser);
 router.get("/verify-email", verifyEmail);
 router.post("/login", loginUser);
 
-// Add the verify endpoint to check if the user is authenticated
 router.get("/verify", auth, (req, res) => {
-  // The auth middleware verifies the token and sets the user in req.user
   res.status(200).json({
     message: "User is authenticated",
-    user: req.user, // Includes user details from the verified token
+    user: req.user,
   });
 });
 
@@ -40,5 +39,7 @@ router.put("/update_profile", updateUserProfile);
 router.get("/profile/:userId", getProfile);
 // Wishlist and cart
 router.get("/wishlist", addToWishlist);
+// contact
+router.post("/contact", submitContactForm);
 
 export default router;

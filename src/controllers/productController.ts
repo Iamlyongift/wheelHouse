@@ -17,15 +17,20 @@ export const createProduct = async (req: Request, res: Response) => {
       console.log(
         "Validation Error:",
         validateProduct.error.details[0].message
-      )
+      );
       return res
         .status(400)
         .json({ Error: validateProduct.error.details[0].message });
     }
 
-    // Destructure and assign the values from the request body
-    const { item_name, category, description, price, stock } = req.body;
+    // Destructure and assign the values from the request body, including productType
+    const { productName, category, description, price, stock, productType } = req.body;
     console.log("Request Body:", req.body);
+
+    // Validate productType (make sure it's either 'house' or 'car')
+    if (!['house', 'car'].includes(productType)) {
+      return res.status(400).json({ message: "Invalid product type" });
+    }
 
     // Find the category by name
     const foundCategory = await CategoryModel.findOne({ name: category });
@@ -59,14 +64,15 @@ export const createProduct = async (req: Request, res: Response) => {
       console.log("Image URLs from body:", pictureUrls);
     }
 
-    // Create a new product instance
+    // Create a new product instance, including productType
     const product = await ProductModel.create({
-      item_name,
+      productName,
       category: foundCategory._id, // Use the _id of the found category
       description,
       price,
       stock,
       images: pictureUrls, // Store an array of image URLs
+      productType, // Include the product type (house or car)
     });
     console.log("Product created:", product);
 
@@ -75,9 +81,11 @@ export const createProduct = async (req: Request, res: Response) => {
       from: process.env.EMAIL_USER,
       to: process.env.ADMIN_EMAIL, // Admin's email
       subject: "New Product Created",
-      text: `A new product "${item_name}" has been created in the category "${foundCategory.name}".`,
+      text: `A new product "${productName}" has been created in the category "${foundCategory.name}".`,
     };
 
+    
+    console.log(mailOptions);
     await transport.sendMail(mailOptions);
     console.log("Email sent to admin.");
 
@@ -90,9 +98,10 @@ export const createProduct = async (req: Request, res: Response) => {
   }
 };
 
+
 export const getAllProducts = async (req: Request, res: Response) => {
   try {
-    const getAllProduct = await ProductModel.find().populate("orders");
+    const getAllProduct = await ProductModel.find();
     res.status(200).json({
       msg: "Product sucessfully fetched",
       getAllProduct,
@@ -191,5 +200,27 @@ export const deleteProduct = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log("Problem deleting product");
+  }
+};
+
+// Function to get all houses
+export const getHouses = async (req: Request, res: Response) => {
+  try {
+    const houses = await ProductModel.find({ productType: 'house' });
+    res.status(200).json(houses);
+  } catch (error) {
+    console.error("Error fetching houses:", error);
+    res.status(500).json({ message: "Error fetching houses" });
+  }
+};
+
+// Function to get all cars
+export const getCars = async (req: Request, res: Response) => {
+  try {
+    const cars = await ProductModel.find({ productType: 'car' });
+    res.status(200).json(cars);
+  } catch (error) {
+    console.error("Error fetching cars:", error);
+    res.status(500).json({ message: "Error fetching cars" });
   }
 };

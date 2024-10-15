@@ -24,7 +24,6 @@ const jwtsecret = process.env.JWT_SECRET;
 const RegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, email, password, confirm_password, phoneNumber, country, role, } = req.body;
-        console.log("Received registration data:", req.body);
         const { error } = utils_1.RegisterSchema.validate(req.body, { abortEarly: false });
         if (error) {
             console.error("Validation error:", error.details);
@@ -33,12 +32,10 @@ const RegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                 .json({ Error: error.details.map((err) => err.message) });
         }
         if (password !== confirm_password) {
-            console.error("Password mismatch:", { password, confirm_password });
             return res.status(400).json({ Error: "Passwords do not match" });
         }
         const salt = yield bcryptjs_1.default.genSalt(12);
         const passwordHash = yield bcryptjs_1.default.hash(password, salt);
-        console.log("Generated password hash:", passwordHash);
         const existingUser = yield UserModel_1.default.findOne({ email });
         if (existingUser) {
             console.error("User already exists with email:", email);
@@ -64,12 +61,26 @@ const RegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             expiresIn: "1h",
         });
         const verificationUrl = `http://localhost:2025/users/verify-email?token=${verificationToken}`;
-        console.log("Generated verification token:", verificationToken);
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: newUser.email,
             subject: "Verify your email address",
-            html: `<p>Hello, Welcome to the Cribs&ride Family, Kindly click <a href="${verificationUrl}">here</a> to verify your email and activate your account. I am glad that you are reading this email.</p>`,
+            html: `
+        Welcome to Cribs&rides! 🎉<br><br>
+    
+        We’re thrilled to have you join our BILLIONAIRE'S community, where finding your dream home or the perfect ride is made easy and enjoyable. Whether you’re looking for a cozy crib or a LUXURY set of wheels, we’re here to make the journey smooth and exciting!<br><br>
+    
+        <strong>What You Can Expect:</strong><br>
+        - Exclusive Listings: Browse a curated selection of homes and vehicles.<br>
+        - Personalized Experience: Tailored recommendations to fit your lifestyle and preferences.<br>
+        - Dedicated Support: Our team is always ready to assist with any questions or concerns.<br><br>
+    
+        Thank you for choosing Cribs&rides – we can’t wait to help you find your perfect match!<br><br>
+    
+        To get started, please verify your account by clicking the link below:<br><br>
+    
+        <a href="${verificationUrl}">Verify your account here</a>
+      `,
         };
         console.log("Mail options:", mailOptions);
         try {
@@ -106,7 +117,7 @@ const verifyEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         }
         user.isActive = true;
         yield user.save();
-        res.redirect("http://localhost:5173/login");
+        res.redirect("http://localhost:5173");
     }
     catch (error) {
         console.error("Verification error:", error);
@@ -150,28 +161,51 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.loginUser = loginUser;
 const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { username } = req.body;
+        const { username, password, confirm_password } = req.body;
         console.log("Validating request body...");
-        const { error, value } = utils_1.updateProfileSchema.validate(req.body, {
+        const { error } = utils_1.updateProfileSchema.validate(req.body, {
             abortEarly: false,
         });
         if (error) {
             console.log("Validation error:", error.details);
-            return res
-                .status(400)
-                .json({ Error: error.details.map((err) => err.message) });
+            return res.status(400).json({
+                Error: error.details.map((err) => err.message),
+            });
         }
-        console.log("Updating user profile...");
-        const profile = yield UserModel_1.default.findByIdAndUpdate(req.user._id, {
-            username,
-        }, { new: true });
+        if (password && password !== confirm_password) {
+            return res.status(400).json({ Error: "Passwords do not match" });
+        }
+        let passwordHash;
+        if (password) {
+            const salt = yield bcryptjs_1.default.genSalt(12);
+            console.log("Salt:", salt);
+            console.log("Password:", password);
+            passwordHash = yield bcryptjs_1.default.hash(password, salt);
+        }
+        let pictureUrl = "";
+        if (req.file) {
+            const result = yield cloudinary_1.v2.uploader.upload(req.file.path);
+            pictureUrl = result.secure_url;
+        }
+        const updateData = { username };
+        if (passwordHash) {
+            updateData.password = passwordHash;
+        }
+        if (pictureUrl) {
+            updateData.profilePhoto = pictureUrl;
+        }
+        const profile = yield UserModel_1.default.findByIdAndUpdate(req.user._id, updateData, { new: true });
         if (!profile) {
             return res.status(404).json({ message: "User not found" });
         }
         res.status(200).json({ message: "User updated", profile });
     }
     catch (error) {
-        res.status(500).json({ message: "An unexpected error occurred" });
+        console.error("Error:", error);
+        res.status(500).json({
+            message: "An unexpected error occurred",
+            error: error.message,
+        });
     }
 });
 exports.updateUserProfile = updateUserProfile;

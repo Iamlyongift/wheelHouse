@@ -6,6 +6,7 @@ import {
   adminRegistrationSchema,
   createAdminSchema,
   passwordSchema,
+  userIdSchema,
 } from "../utils/utils";
 import UserModel from "../models/UserModel";
 
@@ -20,10 +21,7 @@ export const adminRegister = async (req: Request, res: Response) => {
       return res.status(400).json({ message: error.details[0].message });
     }
 
-    const { username, email, password } = value;
-
-
-
+    const { username, email, password, phoneNumber } = value;
 
     // Check if the username already exists
     const existingUser = await UserModel.findOne({ username });
@@ -37,6 +35,7 @@ export const adminRegister = async (req: Request, res: Response) => {
       username,
       email,
       password: hashedPassword,
+      phoneNumber,
       role: "admin",
     });
 
@@ -87,16 +86,31 @@ export const adminLogin = async (req: Request, res: Response) => {
 // List all registered users
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const users = await UserModel.find(
-      {},
-      "name email createdAt isActive role"
-    );
-    res.status(200).json({ users });
+    const { page = 1, limit = 10 } = req.query; // Set default values if not provided
+
+    // Calculate the number of documents to skip
+    const skip = (Number(page) - 1) * Number(limit);
+
+    // Find users with pagination and total count
+    const users = await UserModel.find({}, "name email createdAt isActive role")
+      .skip(skip)
+      .limit(Number(limit));
+
+    // Get total user count for pagination
+    const totalUsers = await UserModel.countDocuments({});
+
+    res.status(200).json({
+      users,
+      totalPages: Math.ceil(totalUsers / Number(limit)),
+      currentPage: Number(page),
+      totalUsers,
+    });
   } catch (error) {
     console.error("Error fetching users:", error);
     res.status(500).json({ message: "Error fetching users" });
   }
 };
+
 
 // Update user information
 export const updateUser = async (req: Request, res: Response) => {
@@ -123,8 +137,13 @@ export const toggleUserStatus = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+
+    // Toggle isActive
     user.isActive = !user.isActive;
-    await user.save();
+
+    // Save the user without needing to validate other fields
+    await user.save({ validateModifiedOnly: true });
+
     res.status(200).json({
       message: `User ${
         user.isActive ? "reactivated" : "deactivated"
@@ -213,5 +232,34 @@ export const assignAdminRole = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error assigning admin role:", error);
     res.status(500).json({ message: "Error assigning admin role" });
+  }
+};
+
+
+export const getAdminProfile = async (req: Request, res: Response) => {
+  try {
+   
+    const { error, value } = userIdSchema.validate(req.params);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
+
+    const { adminId } = value;
+
+    // Find the admin by ID
+    const admin = await UserModel.findById(adminId).select("-password"); // Exclude password from the returned data
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    res.status(200).json({
+      message: "Admin profile retrieved successfully",
+      admin,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Error retrieving admin profile",
+      error: (err as Error).message,
+    });
   }
 };

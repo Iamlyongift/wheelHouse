@@ -38,6 +38,7 @@ export const adminRegistrationSchema = Joi.object({
   username: Joi.string().alphanum().min(3).max(30).required(),
   email: Joi.string().email().required(),
   password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")).required(),
+  phoneNumber: Joi.string().min(7).max(15).required(),
 });
 
 export const adminLoginSchema = Joi.object({
@@ -53,19 +54,44 @@ export const changePasswordSchema = Joi.object({
 
 export const updateProfileSchema = Joi.object({
   username: Joi.string().min(3).max(30).optional(),
+  password: Joi.string().min(8).optional(), // Make password optional
+  confirm_password: Joi.string().valid(Joi.ref('password')).optional(),
+  profilePhoto: Joi.string().optional(),
 });
 
+
+
+
+
+
 export const creatProductSchema = Joi.object({
-  item_name: Joi.string().required(),
-  category: Joi.string().required(),
-  price: Joi.string().required(),
-  description: Joi.string().required(),
-  stock: Joi.number().required(),
-  images: Joi.array().items(Joi.string()),
+  productName: Joi.string().required().messages({
+    "string.empty": "Product name is required",
+  }),
+  category: Joi.string().required().messages({
+    "string.empty": "Category is required",
+  }),
+  price: Joi.number().required().messages({
+    "number.base": "Price must be a number",
+    "any.required": "Price is required",
+  }),
+  description: Joi.string().required().messages({
+    "string.empty": "Description is required",
+  }),
+  stock: Joi.number().required().min(0).messages({
+    "number.base": "Stock must be a number",
+    "any.required": "Stock is required",
+    "number.min": "Stock cannot be less than 0",
+  }),
+  images: Joi.array().items(Joi.string()).optional(), // For handling image URLs
+  productType: Joi.string().valid("house", "car").required().messages({
+    "any.only": 'Product type must be either "house" or "car"',
+    "string.empty": "Product type is required",
+  }),
 });
 
 export const updateProductSchema = Joi.object({
-  item_name: Joi.string().optional(),
+  productName: Joi.string().optional(),
   category: Joi.string().optional(),
   price: Joi.string().optional(),
   description: Joi.string().optional(),
@@ -84,8 +110,9 @@ export const createAdminSchema = Joi.object({
 });
 
 export const categorySchema = Joi.object({
-  name: Joi.string().min(2).max(100).required(),
-  description: Joi.string().min(10).max(1000).optional(),
+  name: Joi.string().required(),
+  description: Joi.string().required(),
+  type: Joi.string().valid('car', 'house').required(), // Ensures type is either 'car' or 'house'
 });
 
 export const productSchema = Joi.object({
@@ -114,4 +141,12 @@ export const userIdSchema = Joi.object({
   userId: Joi.string()
     .regex(/^[0-9a-fA-F]{24}$/)
     .required(),
+});
+
+// Define the Joi schema for validation
+export const contactSchema = Joi.object({
+  name: Joi.string().min(3).max(50).required(),
+  phone: Joi.string().pattern(/^\d+$/).min(10).max(15).required(), // Ensure it's a string of digits
+  email: Joi.string().email().required(),
+  message: Joi.string().min(10).max(500).required(),
 });

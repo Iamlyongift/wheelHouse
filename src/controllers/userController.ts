@@ -28,8 +28,6 @@ export const RegisterUser = async (req: Request, res: Response) => {
       role,
     } = req.body;
 
-    console.log("Received registration data:", req.body);
-
     // Validate user input
     const { error } = RegisterSchema.validate(req.body, { abortEarly: false });
     if (error) {
@@ -41,14 +39,12 @@ export const RegisterUser = async (req: Request, res: Response) => {
 
     // Ensure passwords match
     if (password !== confirm_password) {
-      console.error("Password mismatch:", { password, confirm_password });
       return res.status(400).json({ Error: "Passwords do not match" });
     }
 
     // Hash the password
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
-    console.log("Generated password hash:", passwordHash);
 
     // Check if the user already exists
     const existingUser = await UserModel.findOne({ email });
@@ -64,9 +60,6 @@ export const RegisterUser = async (req: Request, res: Response) => {
       const result = await cloudinaryV2.uploader.upload(req.file.path);
       pictureUrl = result.secure_url; // Store the URL of the uploaded picture
     }
-   
-    // Check if a file was uploaded
-  
 
     // Create new user but set isActive to false until verified
     const newUser = await UserModel.create({
@@ -87,15 +80,30 @@ export const RegisterUser = async (req: Request, res: Response) => {
       expiresIn: "1h",
     });
     const verificationUrl = `http://localhost:2025/users/verify-email?token=${verificationToken}`;
-    console.log("Generated verification token:", verificationToken);
 
     // Set up email options
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: newUser.email,
       subject: "Verify your email address",
-      html: `<p>Hello, Welcome to the Cribs&ride Family, Kindly click <a href="${verificationUrl}">here</a> to verify your email and activate your account. I am glad that you are reading this email.</p>`,
+      html: `
+        Welcome to Cribs&rides! 🎉<br><br>
+    
+        We’re thrilled to have you join our BILLIONAIRE'S community, where finding your dream home or the perfect ride is made easy and enjoyable. Whether you’re looking for a cozy crib or a LUXURY set of wheels, we’re here to make the journey smooth and exciting!<br><br>
+    
+        <strong>What You Can Expect:</strong><br>
+        - Exclusive Listings: Browse a curated selection of homes and vehicles.<br>
+        - Personalized Experience: Tailored recommendations to fit your lifestyle and preferences.<br>
+        - Dedicated Support: Our team is always ready to assist with any questions or concerns.<br><br>
+    
+        Thank you for choosing Cribs&rides – we can’t wait to help you find your perfect match!<br><br>
+    
+        To get started, please verify your account by clicking the link below:<br><br>
+    
+        <a href="${verificationUrl}">Verify your account here</a>
+      `,
     };
+    
 
     console.log("Mail options:", mailOptions);
 
@@ -145,7 +153,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
     await user.save();
 
     // Redirect to login page after successful verification
-    res.redirect("http://localhost:5173/login"); // Make sure this path matches your frontend's login page
+    res.redirect("http://localhost:5173"); // Make sure this path matches your frontend's login page
   } catch (error) {
     console.error("Verification error:", error);
     return res.status(400).json({ message: "Invalid or expired token." });
@@ -197,38 +205,73 @@ export const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-export const updateUserProfile = async (req: Request | any, res: Response) => {
+export const updateUserProfile = async (req: Request, res: Response) => {
   try {
-    const { username } = req.body;
+    // Destructure required fields from the request body
+    const { username, password, confirm_password } = req.body;
 
     // Validate request body
     console.log("Validating request body...");
-    const { error, value } = updateProfileSchema.validate(req.body, {
+    const { error } = updateProfileSchema.validate(req.body, {
       abortEarly: false,
     });
     if (error) {
       console.log("Validation error:", error.details);
-      return res
-        .status(400)
-        .json({ Error: error.details.map((err: any) => err.message) });
+      return res.status(400).json({
+        Error: error.details.map((err: any) => err.message),
+      });
     }
 
-    // Find and update the user profile using the authenticated user's ID
-    console.log("Updating user profile...");
+    // Ensure passwords match if password is provided
+    if (password && password !== confirm_password) {
+      return res.status(400).json({ Error: "Passwords do not match" });
+    }
+
+    let passwordHash;
+    if (password) {
+      const salt = await bcrypt.genSalt(12);
+      console.log("Salt:", salt);
+      console.log("Password:", password);
+      passwordHash = await bcrypt.hash(password, salt);
+    }
+
+    let pictureUrl = "";
+    // Check if a file was uploaded
+    if (req.file) {
+      // Upload the image to Cloudinary and retrieve its URL
+      const result = await cloudinaryV2.uploader.upload(req.file.path);
+      pictureUrl = result.secure_url; // Store the URL of the uploaded picture
+    }
+
+    const updateData: any = { username }; // Prepare update data
+
+    // Only include passwordHash if a new password is being set
+    if (passwordHash) {
+      updateData.password = passwordHash;
+    }
+
+    if (pictureUrl) {
+      updateData.profilePhoto = pictureUrl;
+    }
+
+    // Update user profile in the database
     const profile = await UserModel.findByIdAndUpdate(
       req.user._id,
-      {
-        username,
-      },
+      updateData,
       { new: true }
     );
 
     if (!profile) {
       return res.status(404).json({ message: "User not found" });
     }
+
     res.status(200).json({ message: "User updated", profile });
   } catch (error) {
-    res.status(500).json({ message: "An unexpected error occurred" });
+    console.error("Error:", error); // Log the actual error
+    res.status(500).json({
+      message: "An unexpected error occurred",
+      error: error.message,
+    });
   }
 };
 

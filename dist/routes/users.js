@@ -8,8 +8,9 @@ const userController_1 = require("../controllers/userController");
 const TestimonialController_1 = require("../controllers/TestimonialController");
 const Auth_1 = require("../middleware/Auth");
 const UploadImages_1 = require("../library/helpers/UploadImages");
+const ContactController_1 = require("../controllers/ContactController");
 const router = express_1.default.Router();
-router.post("/register", UploadImages_1.upload.single('profilePhoto'), userController_1.RegisterUser);
+router.post("/register", UploadImages_1.upload.single("profilePhoto"), userController_1.RegisterUser);
 router.get("/verify-email", userController_1.verifyEmail);
 router.post("/login", userController_1.loginUser);
 router.get("/verify", Auth_1.auth, (req, res) => {
@@ -24,4 +25,5 @@ router.post("/create-testimonials", TestimonialController_1.createTestimonial);
 router.put("/update_profile", userController_1.updateUserProfile);
 router.get("/profile/:userId", userController_1.getProfile);
 router.get("/wishlist", userController_1.addToWishlist);
+router.post("/contact", ContactController_1.submitContactForm);
 exports.default = router;

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.assignAdminRole = exports.createAdminUser = exports.resetUserPassword = exports.toggleUserStatus = exports.updateUser = exports.getAllUsers = exports.adminLogin = exports.adminRegister = void 0;
+exports.getAdminProfile = exports.assignAdminRole = exports.createAdminUser = exports.resetUserPassword = exports.toggleUserStatus = exports.updateUser = exports.getAllUsers = exports.adminLogin = exports.adminRegister = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const utils_1 = require("../utils/utils");
@@ -24,7 +24,7 @@ const adminRegister = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         if (error) {
             return res.status(400).json({ message: error.details[0].message });
         }
-        const { username, email, password } = value;
+        const { username, email, password, phoneNumber } = value;
         const existingUser = yield UserModel_1.default.findOne({ username });
         if (existingUser) {
             return res.status(400).json({ message: "Username already exists" });
@@ -34,6 +34,7 @@ const adminRegister = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             username,
             email,
             password: hashedPassword,
+            phoneNumber,
             role: "admin",
         });
         yield newAdmin.save();
@@ -74,8 +75,18 @@ const adminLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.adminLogin = adminLogin;
 const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const users = yield UserModel_1.default.find({}, "name email createdAt isActive role");
-        res.status(200).json({ users });
+        const { page = 1, limit = 10 } = req.query;
+        const skip = (Number(page) - 1) * Number(limit);
+        const users = yield UserModel_1.default.find({}, "name email createdAt isActive role")
+            .skip(skip)
+            .limit(Number(limit));
+        const totalUsers = yield UserModel_1.default.countDocuments({});
+        res.status(200).json({
+            users,
+            totalPages: Math.ceil(totalUsers / Number(limit)),
+            currentPage: Number(page),
+            totalUsers,
+        });
     }
     catch (error) {
         console.error("Error fetching users:", error);
@@ -108,7 +119,7 @@ const toggleUserStatus = (req, res) => __awaiter(void 0, void 0, void 0, functio
             return res.status(404).json({ message: "User not found" });
         }
         user.isActive = !user.isActive;
-        yield user.save();
+        yield user.save({ validateModifiedOnly: true });
         res.status(200).json({
             message: `User ${user.isActive ? "reactivated" : "deactivated"} successfully`,
             user,
@@ -187,3 +198,27 @@ const assignAdminRole = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.assignAdminRole = assignAdminRole;
+const getAdminProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { error, value } = utils_1.userIdSchema.validate(req.params);
+        if (error) {
+            return res.status(400).json({ message: error.details[0].message });
+        }
+        const { adminId } = value;
+        const admin = yield UserModel_1.default.findById(adminId).select("-password");
+        if (!admin) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+        res.status(200).json({
+            message: "Admin profile retrieved successfully",
+            admin,
+        });
+    }
+    catch (err) {
+        res.status(500).json({
+            message: "Error retrieving admin profile",
+            error: err.message,
+        });
+    }
+});
+exports.getAdminProfile = getAdminProfile;

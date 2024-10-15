@@ -3,11 +3,10 @@ import express, { Request, Response, NextFunction } from "express";
 import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
-import cors from "cors"
+import cors from "cors";
 import indexRouter from "./routes/index";
 import usersRouter from "./routes/users";
 import adminRouter from "./routes/admin";
-
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -17,13 +16,13 @@ const app = express();
 // Set up CORS middleware with multiple allowed origins
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://wheelhouse.onrender.com"], // Add frontend URLs
+    origin: ["*"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // Allow required methods
     credentials: true, // Allow cookies or authorization headers
     allowedHeaders: ["Content-Type", "Authorization"], // Allow headers that are needed
   })
 );
-app.options('*', cors());
+app.options("*", cors());
 
 // View engine setup
 app.set("views", path.join(__dirname, "../views"));

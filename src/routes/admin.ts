@@ -1,5 +1,10 @@
 import express from "express";
-import { adminLogin, adminRegister } from "../controllers/adminController";
+import {
+  adminLogin,
+  adminRegister,
+  getAdminProfile,
+  toggleUserStatus,
+} from "../controllers/adminController";
 import { auth, requireAdmin } from "../middleware/Auth";
 
 const router = express.Router();
@@ -17,7 +22,6 @@ router.use(auth, requireAdmin);
 import {
   getAllUsers,
   updateUser,
-  toggleUserStatus,
   resetUserPassword,
   createAdminUser,
   assignAdminRole,
@@ -25,7 +29,7 @@ import {
 
 router.get("/users", getAllUsers);
 router.put("/users/:userId", updateUser);
-router.patch("/users/:userId/status", toggleUserStatus);
+router.patch("/users/:userId/toggle-status", toggleUserStatus);
 router.patch("/users/:userId/reset-password", resetUserPassword);
 router.post("/creatAdmin", createAdminUser);
 router.patch("/users/:userId/assign-role", assignAdminRole);
@@ -36,13 +40,20 @@ import {
   updateCategory,
   deleteCategory,
   getCategory,
+  getCategoriesByType,
 } from "../controllers/adminCategoryController";
+
 
 router.post("/categories", createCategory);
 router.put("/categories/:categoryId", updateCategory);
+router.get('/categories/:type', getCategoriesByType);
+router.get("/profile/:adminId", getAdminProfile);
 router.delete("/categories/:categoryId", deleteCategory);
 router.get("/getcategories", getCategory);
 
 
 
+
 export default router;
+
+

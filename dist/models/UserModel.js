@@ -38,7 +38,7 @@ const userSchema = new mongoose_1.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     phoneNumber: { type: String, required: true },
-    country: { type: String, required: false },
+    country: { type: String, required: true },
     profilePhoto: { type: String, required: false },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     isActive: { type: Boolean, default: true },
