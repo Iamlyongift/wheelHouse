@@ -41,6 +41,7 @@ exports.adminRegistrationSchema = joi_1.default.object({
     email: joi_1.default.string().email().required(),
     password: joi_1.default.string().pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")).required(),
     phoneNumber: joi_1.default.string().min(7).max(15).required(),
+    country: joi_1.default.string().required(),
 });
 exports.adminLoginSchema = joi_1.default.object({
     username: joi_1.default.string().required(),

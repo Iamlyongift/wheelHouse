@@ -24,7 +24,7 @@ const adminRegister = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         if (error) {
             return res.status(400).json({ message: error.details[0].message });
         }
-        const { username, email, password, phoneNumber } = value;
+        const { username, email, password, phoneNumber, country } = value;
         const existingUser = yield UserModel_1.default.findOne({ username });
         if (existingUser) {
             return res.status(400).json({ message: "Username already exists" });
@@ -35,6 +35,7 @@ const adminRegister = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             email,
             password: hashedPassword,
             phoneNumber,
+            country,
             role: "admin",
         });
         yield newAdmin.save();

@@ -21,7 +21,7 @@ export const adminRegister = async (req: Request, res: Response) => {
       return res.status(400).json({ message: error.details[0].message });
     }
 
-    const { username, email, password, phoneNumber } = value;
+    const { username, email, password, phoneNumber, country } = value;
 
     // Check if the username already exists
     const existingUser = await UserModel.findOne({ username });
@@ -36,6 +36,7 @@ export const adminRegister = async (req: Request, res: Response) => {
       email,
       password: hashedPassword,
       phoneNumber,
+      country,
       role: "admin",
     });
 
