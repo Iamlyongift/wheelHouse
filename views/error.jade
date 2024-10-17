@@ -1,6 +1,8 @@
-extends layout
-
-block content
-  h1= message
-  h2= error.status
-  pre #{error.stack}
+app.use((err, req, res, next) => {
+  res.status(err.status || 500);
+  res.render('error', {
+    title: 'Error', // Pass title here
+    message: 'An unexpected error occurred',
+    error: err
+  });
+});
