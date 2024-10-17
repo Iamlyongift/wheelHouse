@@ -1,7 +1,9 @@
 import { Request } from "express";
+import { UserDocument } from "../models/UserModel";
+// Import the updated UserDocument
 
-interface adminRequest extends Request {
-  user?: Record<string, any>;
+interface AdminRequest extends Request {
+  user?: UserDocument; // Use the UserDocument type
 }
 
-export default adminRequest;
+export default AdminRequest;

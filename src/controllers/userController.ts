@@ -13,15 +13,9 @@ import {
 import WishlistModel from "../models/whishlistModel";
 import transport from "../emailConfig";
 import { v2 as cloudinaryV2 } from "cloudinary";
+import AdminRequest from "../types/UserRequest";
 
 const jwtsecret = process.env.JWT_SECRET as string;
-interface AuthenticatedRequest extends Request {
-  user?: {
-    _id: string;
-    email: string;
-    
-  };
-}
 
 export const RegisterUser = async (req: Request, res: Response) => {
   try {
@@ -211,7 +205,7 @@ export const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-export const updateUserProfile = async (req: AuthenticatedRequest, res: Response) => {
+export const updateUserProfile = async (req: AdminRequest, res: Response) => {
   try {
     // Destructure required fields from the request body
     const { username, password, confirm_password } = req.body;
@@ -262,7 +256,7 @@ export const updateUserProfile = async (req: AuthenticatedRequest, res: Response
 
     // Update user profile in the database
     const profile = await UserModel.findByIdAndUpdate(
-      req.user._id,
+      req.user?._id, // Accessing user ID from req.user
       updateData,
       { new: true }
     );
@@ -272,10 +266,10 @@ export const updateUserProfile = async (req: AuthenticatedRequest, res: Response
     }
 
     res.status(200).json({ message: "User updated", profile });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       message: "An unexpected error occurred",
-      error,
+      error: error.message,
     });
   }
 };

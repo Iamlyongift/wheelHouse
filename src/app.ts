@@ -16,7 +16,7 @@ const app = express();
 // Set up CORS middleware with multiple allowed origins
 app.use(
   cors({
-    origin: ["*"],
+    origin: ["https://wheel-house-frontend.vercel.app", "https://wheel-house-dashboard.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // Allow required methods
     credentials: true, // Allow cookies or authorization headers
     allowedHeaders: ["Content-Type", "Authorization"], // Allow headers that are needed

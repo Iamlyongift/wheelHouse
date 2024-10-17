@@ -160,6 +160,7 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.loginUser = loginUser;
 const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const { username, password, confirm_password } = req.body;
         console.log("Validating request body...");
@@ -194,7 +195,7 @@ const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, functi
         if (pictureUrl) {
             updateData.profilePhoto = pictureUrl;
         }
-        const profile = yield UserModel_1.default.findByIdAndUpdate(req.user._id, updateData, { new: true });
+        const profile = yield UserModel_1.default.findByIdAndUpdate((_a = req.user) === null || _a === void 0 ? void 0 : _a._id, updateData, { new: true });
         if (!profile) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -203,7 +204,7 @@ const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, functi
     catch (error) {
         res.status(500).json({
             message: "An unexpected error occurred",
-            error,
+            error: error.message,
         });
     }
 });

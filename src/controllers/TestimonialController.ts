@@ -1,11 +1,13 @@
 // controllers/testimonialController.ts
 import { Request, Response } from "express";
 import TestimonialModel from "../models/Testimonials";
+import AdminRequest from "../types/UserRequest";
 
-export const createTestimonial = async (req: Request, res: Response) => {
+export const createTestimonial = async (req: AdminRequest, res: Response) => {
   try {
     const { name, review, rating, description } = req.body;
-    const userId = req.user?._id;
+    const userId = req.user?._id; // Now req.user is properly typed
+
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
     }

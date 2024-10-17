@@ -14,10 +14,19 @@ router.post("/register", UploadImages_1.upload.single("profilePhoto"), userContr
 router.get("/verify-email", userController_1.verifyEmail);
 router.post("/login", userController_1.loginUser);
 router.get("/verify", Auth_1.auth, (req, res) => {
-    res.status(200).json({
-        message: "User is authenticated",
-        user: req.user,
-    });
+    if (req.user) {
+        res.status(200).json({
+            message: "User is authenticated",
+            user: {
+                username: req.user.username,
+                email: req.user.email,
+                role: req.user.role,
+            },
+        });
+    }
+    else {
+        res.status(401).json({ message: "User not authenticated" });
+    }
 });
 router.get("/testimonials", TestimonialController_1.getTestimonials);
 router.use(Auth_1.auth);

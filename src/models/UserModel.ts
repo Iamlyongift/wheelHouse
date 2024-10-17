@@ -1,18 +1,25 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, Model } from "mongoose";
 
-export interface UserType extends Document {
+// Define the user interface that extends Document
+export interface UserDocument extends Document {
   username: string;
   email: string;
   password: string;
   phoneNumber: string;
   country: string;
-  profilePhoto: string;
+  profilePhoto?: string;
   role: "user" | "admin";
-  isActive: boolean; // New field to track user status
-  toggleAccountStatus: () => Promise<void>; // Method to toggle account status
+  isActive: boolean;
+  toggleAccountStatus: () => Promise<void>; // Instance method to toggle status
 }
 
-const userSchema = new Schema(
+// Define the static methods interface
+interface UserModelType extends Model<UserDocument> {
+  toggleAccountStatusById: (userId: string) => Promise<void>; // Static method to toggle status
+}
+
+// Define the schema
+const userSchema = new Schema<UserDocument>(
   {
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
@@ -22,19 +29,18 @@ const userSchema = new Schema(
     profilePhoto: { type: String, required: false },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     isActive: { type: Boolean, default: true }, 
- 
   },
   { timestamps: true }
 );
 
-// Method to toggle the isActive status
-userSchema.methods.toggleAccountStatus = async function () {
+// Instance method to toggle account status
+userSchema.methods.toggleAccountStatus = async function (): Promise<void> {
   this.isActive = !this.isActive;
   await this.save();
 };
 
-// Static method to toggle the isActive status by user ID
-userSchema.statics.toggleAccountStatusById = async function (userId: string) {
+// Static method to toggle account status by user ID
+userSchema.statics.toggleAccountStatusById = async function (userId: string): Promise<void> {
   const user = await this.findById(userId);
   if (user) {
     user.isActive = !user.isActive;
@@ -42,6 +48,7 @@ userSchema.statics.toggleAccountStatusById = async function (userId: string) {
   }
 };
 
-const UserModel = mongoose.model<UserType>("User", userSchema);
+// Create the model with both instance and static methods
+const UserModel = mongoose.model<UserDocument, UserModelType>("User", userSchema);
 
 export default UserModel;

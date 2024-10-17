@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import UserModel, { UserType } from "../models/UserModel";
+import UserModel, { UserDocument } from "../models/UserModel";
 
 const jwtSecret = process.env.JWT_SECRET as string;
 
 export interface AuthenticatedRequest extends Request {
-  user?: UserType;
+  user?: UserDocument;
 }
 
 export const auth = async (
