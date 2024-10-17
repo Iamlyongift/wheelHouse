@@ -1,7 +1,7 @@
 app.use((err, req, res, next) => {
   res.status(err.status || 500);
   res.render('error', {
-    title: 'Error', // Pass title here
+    title: 'Error',
     message: 'An unexpected error occurred',
     error: err
   });
