@@ -1,9 +1,7 @@
 "use strict";
-var __importDefault =
-  (this && this.__importDefault) ||
-  function (mod) {
-    return mod && mod.__esModule ? mod : { default: mod };
-  };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const http_errors_1 = __importDefault(require("http-errors"));
 const express_1 = __importDefault(require("express"));
@@ -17,17 +15,12 @@ const admin_1 = __importDefault(require("./routes/admin"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
-app.use(
-  (0, cors_1.default)({
-    origin: [
-      "https://wheel-house-frontend.vercel.app",
-      "https://wheel-house-dashboard.vercel.app",
-    ],
+app.use((0, cors_1.default)({
+    origin: ["https://wheel-house-frontend.vercel.app", "https://wheel-house-dashboard.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+}));
 app.options("*", (0, cors_1.default)());
 app.set("views", path_1.default.join(__dirname, "../views"));
 app.set("view engine", "jade");
@@ -40,12 +33,12 @@ app.use("/product", index_1.default);
 app.use("/users", users_1.default);
 app.use("/admin", admin_1.default);
 app.use((req, res, next) => {
-  next((0, http_errors_1.default)(404));
+    next((0, http_errors_1.default)(404));
 });
 app.use((err, req, res, next) => {
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
-  res.status(err.status || 500);
-  res.render("error");
+    res.locals.message = err.message;
+    res.locals.error = req.app.get("env") === "development" ? err : {};
+    res.status(err.status || 500);
+    res.render("error");
 });
 exports.default = app;

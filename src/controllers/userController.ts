@@ -80,7 +80,7 @@ export const RegisterUser = async (req: Request, res: Response) => {
     const verificationToken = jwt.sign({ userId: newUser._id }, jwtsecret, {
       expiresIn: "1h",
     });
-    const verificationUrl = `http://localhost:2025/users/verify-email?token=${verificationToken}`;
+    const verificationUrl = `https://wheelhouse.onrender.com/users/verify-email?token=${verificationToken}`;
 
     // Set up email options
     const mailOptions = {

@@ -60,7 +60,7 @@ const RegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const verificationToken = jsonwebtoken_1.default.sign({ userId: newUser._id }, jwtsecret, {
             expiresIn: "1h",
         });
-        const verificationUrl = `http://localhost:2025/users/verify-email?token=${verificationToken}`;
+        const verificationUrl = `https://wheelhouse.onrender.com/users/verify-email?token=${verificationToken}`;
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: newUser.email,
