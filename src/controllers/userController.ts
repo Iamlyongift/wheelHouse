@@ -153,7 +153,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
     await user.save();
 
     // Redirect to login page after successful verification
-    res.redirect("http://localhost:5173"); // Make sure this path matches your frontend's login page
+    res.redirect("  https://wheelhouse.onrender.com/users/login"); // Make sure this path matches your frontend's login page
   } catch (error) {
     console.error("Verification error:", error);
     return res.status(400).json({ message: "Invalid or expired token." });

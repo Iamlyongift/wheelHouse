@@ -117,7 +117,7 @@ const verifyEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         }
         user.isActive = true;
         yield user.save();
-        res.redirect("http://localhost:5173");
+        res.redirect("  https://wheelhouse.onrender.com/users/login");
     }
     catch (error) {
         console.error("Verification error:", error);
