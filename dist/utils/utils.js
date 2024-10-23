@@ -3,8 +3,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.contactSchema = exports.userIdSchema = exports.wishlistSchema = exports.productSchema = exports.categorySchema = exports.createAdminSchema = exports.passwordSchema = exports.updateProductSchema = exports.creatProductSchema = exports.updateProfileSchema = exports.changePasswordSchema = exports.adminLoginSchema = exports.adminRegistrationSchema = exports.option = exports.LoginSchema = exports.RegisterSchema = void 0;
+exports.contactSchema = exports.userIdSchema = exports.wishlistSchema = exports.productSchema = exports.categorySchema = exports.createAdminSchema = exports.passwordSchema = exports.updateProductSchema = exports.creatProductSchema = exports.updateProfileSchema = exports.changePasswordSchema = exports.adminLoginSchema = exports.adminRegistrationSchema = exports.option = exports.LoginSchema = exports.RegisterSchema = exports.emailSchema = void 0;
 const joi_1 = __importDefault(require("joi"));
+exports.emailSchema = joi_1.default.object({
+    subject: joi_1.default.string().required().messages({
+        'string.empty': 'Subject is required',
+    }),
+    messageContent: joi_1.default.string().required().messages({
+        'string.empty': 'Message content is required',
+    }),
+});
 exports.RegisterSchema = joi_1.default.object({
     username: joi_1.default.string().min(3).max(30).required(),
     email: joi_1.default.string().email().required(),

@@ -31,8 +31,6 @@ export const createCategory = async (req: Request, res: Response) => {
   }
 };
 
-
-// getbytype
 export const getCategoriesByType = async (req: Request, res: Response) => {
   try {
     const { type } = req.params;
@@ -52,11 +50,6 @@ export const getCategoriesByType = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error fetching categories" });
   }
 };
-
-
-
-// Update an existing category
-// import { categorySchema } from './validations'; // Assuming you have a validation schema
 
 export const updateCategory = async (req: Request, res: Response) => {
   try {
@@ -90,8 +83,6 @@ export const updateCategory = async (req: Request, res: Response) => {
   }
 };
 
-
-// Delete a category
 export const deleteCategory = async (req: Request, res: Response) => {
   try {
     const { categoryId } = req.params;
@@ -121,7 +112,7 @@ export const getCategory = async (req: Request, res: Response) => {
   }
 };
 
-// New function to get all messages
+
 export const getAllMessages = async (req: Request, res: Response) => {
   try {
     const allContacts = await ContactModel.find();

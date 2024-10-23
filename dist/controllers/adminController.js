@@ -12,11 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAdminProfile = exports.assignAdminRole = exports.createAdminUser = exports.resetUserPassword = exports.toggleUserStatus = exports.updateUser = exports.getAllUsers = exports.adminLogin = exports.adminRegister = void 0;
+exports.sendEmailToUsers = exports.getAdminProfile = exports.assignAdminRole = exports.createAdminUser = exports.resetUserPassword = exports.toggleUserStatus = exports.updateUser = exports.getAllUsers = exports.adminLogin = exports.adminRegister = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const utils_1 = require("../utils/utils");
 const UserModel_1 = __importDefault(require("../models/UserModel"));
+const emailConfig_1 = __importDefault(require("../emailConfig"));
+const cloudinary_1 = require("cloudinary");
 const jwtsecret = process.env.JWT_SECRET;
 const adminRegister = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -223,3 +225,49 @@ const getAdminProfile = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.getAdminProfile = getAdminProfile;
+const sendEmailToUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { subject, messageContent } = req.body;
+    const { error } = utils_1.emailSchema.validate(req.body);
+    if (error) {
+        res.status(400).json({ error: error.details[0].message });
+        return;
+    }
+    let pictureUrl = "";
+    if (req.file) {
+        const result = yield cloudinary_1.v2.uploader.upload(req.file.path);
+        pictureUrl = result.secure_url;
+    }
+    try {
+        const users = yield UserModel_1.default.find();
+        if (users.length === 0) {
+            res.status(404).json({ message: "No registered users found" });
+            return;
+        }
+        yield Promise.all(users.map((user) => __awaiter(void 0, void 0, void 0, function* () {
+            const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: user.email,
+                subject: subject,
+                html: `
+            <!DOCTYPE html>
+            <html lang="en">
+            <body style="background-image:url('${pictureUrl}'); background-size:cover; background-position:center;">
+              <div style="background-color:rgba(255,255,255,0.8); max-width:600px; margin:0 auto; padding:20px; border-radius:8px;">
+                <h1 style="color:#333;">Hello, ${user.username}!</h1><br>
+                <p>${messageContent}</p><br>
+                <p>Best regards,<br>Cribs&rides</p>
+              </div>
+            </body>
+            </html>
+          `,
+            };
+            yield emailConfig_1.default.sendMail(mailOptions);
+        })));
+        res.status(200).json({ message: "Emails sent successfully" });
+    }
+    catch (error) {
+        console.error("Error sending emails:", error);
+        res.status(500).json({ message: "Error sending verification email." });
+    }
+});
+exports.sendEmailToUsers = sendEmailToUsers;

@@ -4,6 +4,7 @@ import {
   adminLogin,
   adminRegister,
   getAdminProfile,
+  sendEmailToUsers,
   toggleUserStatus,
 } from "../controllers/adminController";
 import { auth, requireAdmin } from "../middleware/Auth";
@@ -42,6 +43,7 @@ import {
   getCategory,
   getCategoriesByType,
 } from "../controllers/adminCategoryController";
+import { upload } from "../library/helpers/UploadImages";
 
 router.post("/categories", createCategory);
 router.put("/categories/:categoryId", updateCategory);
@@ -49,6 +51,7 @@ router.get("/categories/:type", getCategoriesByType);
 router.get("/profile/:adminId", getAdminProfile);
 router.delete("/categories/:categoryId", deleteCategory);
 router.get("/getcategories", getCategory);
+router.post("/send-email", upload.single("image"), sendEmailToUsers);
 
 // counts
 app.get("/admin/users", async (req: Request, res: Response) => {

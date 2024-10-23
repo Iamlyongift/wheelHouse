@@ -31,12 +31,14 @@ router.patch("/users/:userId/reset-password", adminController_2.resetUserPasswor
 router.post("/creatAdmin", adminController_2.createAdminUser);
 router.patch("/users/:userId/assign-role", adminController_2.assignAdminRole);
 const adminCategoryController_1 = require("../controllers/adminCategoryController");
+const UploadImages_1 = require("../library/helpers/UploadImages");
 router.post("/categories", adminCategoryController_1.createCategory);
 router.put("/categories/:categoryId", adminCategoryController_1.updateCategory);
 router.get("/categories/:type", adminCategoryController_1.getCategoriesByType);
 router.get("/profile/:adminId", adminController_1.getAdminProfile);
 router.delete("/categories/:categoryId", adminCategoryController_1.deleteCategory);
 router.get("/getcategories", adminCategoryController_1.getCategory);
+router.post("/send-email", UploadImages_1.upload.single("image"), adminController_1.sendEmailToUsers);
 app.get("/admin/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userCount = yield UserModel_1.default.countDocuments();

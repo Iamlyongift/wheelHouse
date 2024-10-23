@@ -1,4 +1,20 @@
+import { Request, Response, NextFunction } from 'express';
+
 import Joi from "joi";
+
+
+// Define validation schema for the email input
+export const emailSchema = Joi.object({
+  subject: Joi.string().required().messages({
+    'string.empty': 'Subject is required',
+  }),
+  messageContent: Joi.string().required().messages({
+    'string.empty': 'Message content is required',
+  }),
+});
+
+
+
 
 export const RegisterSchema = Joi.object({
   username: Joi.string().min(3).max(30).required(),

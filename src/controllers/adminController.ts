@@ -5,10 +5,13 @@ import {
   adminLoginSchema,
   adminRegistrationSchema,
   createAdminSchema,
+  emailSchema,
   passwordSchema,
   userIdSchema,
 } from "../utils/utils";
 import UserModel from "../models/UserModel";
+import transport from "../emailConfig";
+import { v2 as cloudinaryV2 } from "cloudinary";
 
 const jwtsecret = process.env.JWT_SECRET as string;
 
@@ -111,7 +114,6 @@ export const getAllUsers = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error fetching users" });
   }
 };
-
 
 // Update user information
 export const updateUser = async (req: Request, res: Response) => {
@@ -236,10 +238,8 @@ export const assignAdminRole = async (req: Request, res: Response) => {
   }
 };
 
-
 export const getAdminProfile = async (req: Request, res: Response) => {
   try {
-   
     const { error, value } = userIdSchema.validate(req.params);
     if (error) {
       return res.status(400).json({ message: error.details[0].message });
@@ -264,3 +264,67 @@ export const getAdminProfile = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+
+export const sendEmailToUsers = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { subject, messageContent } = req.body;
+  const { error } = emailSchema.validate(req.body);
+
+  if (error) {
+    res.status(400).json({ error: error.details[0].message });
+    return; // Return immediately to avoid further execution
+  }
+
+  let pictureUrl = "";
+  // Check if a file was uploaded
+  if (req.file) {
+    // Upload the image to Cloudinary and retrieve its URL
+    const result = await cloudinaryV2.uploader.upload(req.file.path);
+    pictureUrl = result.secure_url; // Store the URL of the uploaded picture
+  }
+
+  try {
+    // Fetch all registered users from the database
+    const users = await UserModel.find();
+
+    if (users.length === 0) {
+      res.status(404).json({ message: "No registered users found" });
+      return;
+    }
+
+    // Send emails to all users concurrently
+    await Promise.all(
+      users.map(async (user) => {
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: user.email,
+          subject: subject,
+          html: `
+            <!DOCTYPE html>
+            <html lang="en">
+            <body style="background-image:url('${pictureUrl}'); background-size:cover; background-position:center;">
+              <div style="background-color:rgba(255,255,255,0.8); max-width:600px; margin:0 auto; padding:20px; border-radius:8px;">
+                <h1 style="color:#333;">Hello, ${user.username}!</h1><br>
+                <p>${messageContent}</p><br>
+                <p>Best regards,<br>Cribs&rides</p>
+              </div>
+            </body>
+            </html>
+          `,
+        };
+
+        await transport.sendMail(mailOptions);
+      })
+    );
+
+    res.status(200).json({ message: "Emails sent successfully" });
+  } catch (error) {
+    console.error("Error sending emails:", error);
+    res.status(500).json({ message: "Error sending verification email." });
+  }
+};
+

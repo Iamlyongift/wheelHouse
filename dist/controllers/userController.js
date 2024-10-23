@@ -66,20 +66,27 @@ const RegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             to: newUser.email,
             subject: "Verify your email address",
             html: `
-        Welcome to Cribs&rides! 🎉<br><br>
+        <!DOCTYPE html>
+        <html lang="en">
+        <body style="background-image:url('${pictureUrl}'); background-size:cover; background-position:center;">
+          <div style="max-width:600px; margin:0 auto; padding:20px; line-height: 1.6;">
+            Welcome to Cribs&rides! 🎉<br><br>
     
-        We’re thrilled to have you join our BILLIONAIRE'S community, where finding your dream home or the perfect ride is made easy and enjoyable. Whether you’re looking for a cozy crib or a LUXURY set of wheels, we’re here to make the journey smooth and exciting!<br><br>
+            We’re thrilled to have you join our BILLIONAIRE'S community, where finding your dream home or the perfect ride is made easy and enjoyable. Whether you’re looking for a cozy crib or a LUXURY set of wheels, we’re here to make the journey smooth and exciting!<br><br>
     
-        <strong>What You Can Expect:</strong><br>
-        - Exclusive Listings: Browse a curated selection of homes and vehicles.<br>
-        - Personalized Experience: Tailored recommendations to fit your lifestyle and preferences.<br>
-        - Dedicated Support: Our team is always ready to assist with any questions or concerns.<br><br>
+            <strong>What You Can Expect:</strong><br>
+            - Exclusive Listings: Browse a curated selection of homes and vehicles.<br>
+            - Personalized Experience: Tailored recommendations to fit your lifestyle and preferences.<br>
+            - Dedicated Support: Our team is always ready to assist with any questions or concerns.<br><br>
     
-        Thank you for choosing Cribs&rides – we can’t wait to help you find your perfect match!<br><br>
+            Thank you for choosing Cribs&rides – we can’t wait to help you find your perfect match!<br><br>
     
-        To get started, please verify your account by clicking the link below:<br><br>
+            To get started, please verify your account by clicking the link below:<br><br>
     
-        <a href="${verificationUrl}">Verify your account here</a>
+            <a href="${verificationUrl}">Verify your account here</a>
+          </div>
+        </body>
+        </html>
       `,
         };
         console.log("Mail options:", mailOptions);
