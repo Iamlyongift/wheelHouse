@@ -252,7 +252,7 @@ const sendEmailToUsers = (req, res) => __awaiter(void 0, void 0, void 0, functio
             <!DOCTYPE html>
             <html lang="en">
             <body style="background-image:url('${pictureUrl}'); background-size:cover; background-position:center;">
-              <div style="background-color:rgba(255,255,255,0.8); max-width:600px; margin:0 auto; padding:20px; border-radius:8px;">
+              <div style="background-color:transparent; max-width:600px; height:1000px; margin:0 auto; padding:20px; border-radius:8px;">
                 <h1 style="color:#333;">Hello, ${user.username}!</h1><br>
                 <p>${messageContent}</p><br>
                 <p>Best regards,<br>Cribs&rides</p>
