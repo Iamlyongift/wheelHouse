@@ -18,7 +18,6 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const utils_1 = require("../utils/utils");
 const UserModel_1 = __importDefault(require("../models/UserModel"));
 const emailConfig_1 = __importDefault(require("../emailConfig"));
-const cloudinary_1 = require("cloudinary");
 const jwtsecret = process.env.JWT_SECRET;
 const adminRegister = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -232,17 +231,13 @@ const sendEmailToUsers = (req, res) => __awaiter(void 0, void 0, void 0, functio
         res.status(400).json({ error: error.details[0].message });
         return;
     }
-    let pictureUrl = "";
-    if (req.file) {
-        const result = yield cloudinary_1.v2.uploader.upload(req.file.path);
-        pictureUrl = result.secure_url;
-    }
     try {
         const users = yield UserModel_1.default.find();
         if (users.length === 0) {
             res.status(404).json({ message: "No registered users found" });
             return;
         }
+        const emailBackgroundUrl = "https://res.cloudinary.com/dsn2tjq5l/image/upload/v1729766502/lgyumyemlou8wgftaoew.jpg";
         yield Promise.all(users.map((user) => __awaiter(void 0, void 0, void 0, function* () {
             const mailOptions = {
                 from: process.env.EMAIL_USER,
@@ -251,11 +246,13 @@ const sendEmailToUsers = (req, res) => __awaiter(void 0, void 0, void 0, functio
                 html: `
             <!DOCTYPE html>
             <html lang="en">
-            <body style="background-image:url('${pictureUrl}'); background-size:cover; background-position:center;">
-              <div style="background-color:transparent; max-width:600px; height:1000px; margin:0 auto; padding:20px; border-radius:8px;">
-                <h1 style="color:#333;">Hello, ${user.username}!</h1><br>
-                <p>${messageContent}</p><br>
-                <p>Best regards,<br>Cribs&rides</p>
+            <body style="background-image:url('${emailBackgroundUrl}'); background-size:contain; background-position:center; margin:0; padding:0; font-family: Arial, sans-serif;">
+              <div style="background-color:transparent; max-width:600px; height:auto; margin:0 auto; padding:20px; border-radius:8px; color:white;">
+                <h1 style="color:#333; text-align:center;">Hello, ${user.username}!</h1>
+                <div style="background-color:transparent; padding:15px; border-radius:8px;">
+                  <p style="font-size:16px; line-height:1.5; text-align:left; color:#f4f4f4;">${messageContent}</p>
+                </div>
+                <p style="text-align:center; margin-top:20px; font-size:14px; color:#ddd;">Best regards,<br><strong>Cribs&rides</strong></p>
               </div>
             </body>
             </html>

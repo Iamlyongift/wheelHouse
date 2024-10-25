@@ -1,20 +1,13 @@
-import { Request, Response, NextFunction } from 'express';
-
 import Joi from "joi";
 
-
-// Define validation schema for the email input
 export const emailSchema = Joi.object({
   subject: Joi.string().required().messages({
-    'string.empty': 'Subject is required',
+    "string.empty": "Subject is required",
   }),
   messageContent: Joi.string().required().messages({
-    'string.empty': 'Message content is required',
+    "string.empty": "Message content is required",
   }),
 });
-
-
-
 
 export const RegisterSchema = Joi.object({
   username: Joi.string().min(3).max(30).required(),
@@ -72,14 +65,9 @@ export const changePasswordSchema = Joi.object({
 export const updateProfileSchema = Joi.object({
   username: Joi.string().min(3).max(30).optional(),
   password: Joi.string().min(8).optional(), // Make password optional
-  confirm_password: Joi.string().valid(Joi.ref('password')).optional(),
+  confirm_password: Joi.string().valid(Joi.ref("password")).optional(),
   profilePhoto: Joi.string().optional(),
 });
-
-
-
-
-
 
 export const creatProductSchema = Joi.object({
   productName: Joi.string().required().messages({
@@ -129,7 +117,7 @@ export const createAdminSchema = Joi.object({
 export const categorySchema = Joi.object({
   name: Joi.string().required(),
   description: Joi.string().required(),
-  type: Joi.string().valid('car', 'house').required(), // Ensures type is either 'car' or 'house'
+  type: Joi.string().valid("car", "house").required(), // Ensures type is either 'car' or 'house'
 });
 
 export const productSchema = Joi.object({
@@ -160,7 +148,6 @@ export const userIdSchema = Joi.object({
     .required(),
 });
 
-// Define the Joi schema for validation
 export const contactSchema = Joi.object({
   name: Joi.string().min(3).max(50).required(),
   phone: Joi.string().pattern(/^\d+$/).min(10).max(15).required(), // Ensure it's a string of digits

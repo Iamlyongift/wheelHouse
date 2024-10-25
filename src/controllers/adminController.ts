@@ -11,7 +11,7 @@ import {
 } from "../utils/utils";
 import UserModel from "../models/UserModel";
 import transport from "../emailConfig";
-import { v2 as cloudinaryV2 } from "cloudinary";
+
 
 const jwtsecret = process.env.JWT_SECRET as string;
 
@@ -265,8 +265,6 @@ export const getAdminProfile = async (req: Request, res: Response) => {
   }
 };
 
-
-
 export const sendEmailToUsers = async (
   req: Request,
   res: Response
@@ -279,14 +277,6 @@ export const sendEmailToUsers = async (
     return; // Return immediately to avoid further execution
   }
 
-  let pictureUrl = "";
-  // Check if a file was uploaded
-  if (req.file) {
-    // Upload the image to Cloudinary and retrieve its URL
-    const result = await cloudinaryV2.uploader.upload(req.file.path);
-    pictureUrl = result.secure_url; // Store the URL of the uploaded picture
-  }
-
   try {
     // Fetch all registered users from the database
     const users = await UserModel.find();
@@ -296,6 +286,7 @@ export const sendEmailToUsers = async (
       return;
     }
 
+    const emailBackgroundUrl = "https://res.cloudinary.com/dsn2tjq5l/image/upload/v1729766502/lgyumyemlou8wgftaoew.jpg";
     // Send emails to all users concurrently
     await Promise.all(
       users.map(async (user) => {
@@ -306,21 +297,23 @@ export const sendEmailToUsers = async (
           html: `
             <!DOCTYPE html>
             <html lang="en">
-            <body style="background-image:url('${pictureUrl}'); background-size:cover; background-position:center;">
-              <div style="background-color:transparent; max-width:600px; height:1000px; margin:0 auto; padding:20px; border-radius:8px;">
-                <h1 style="color:#333;">Hello, ${user.username}!</h1><br>
-                <p>${messageContent}</p><br>
-                <p>Best regards,<br>Cribs&rides</p>
+            <body style="background-image:url('${emailBackgroundUrl}'); background-size:contain; background-position:center; margin:0; padding:0; font-family: Arial, sans-serif;">
+              <div style="background-color:transparent; max-width:600px; height:auto; margin:0 auto; padding:20px; border-radius:8px; color:white;">
+                <h1 style="color:#333; text-align:center;">Hello, ${user.username}!</h1>
+                <div style="background-color:transparent; padding:15px; border-radius:8px;">
+                  <p style="font-size:16px; line-height:1.5; text-align:left; color:#f4f4f4;">${messageContent}</p>
+                </div>
+                <p style="text-align:center; margin-top:20px; font-size:14px; color:#ddd;">Best regards,<br><strong>Cribs&rides</strong></p>
               </div>
             </body>
             </html>
           `,
         };
-
+    
         await transport.sendMail(mailOptions);
       })
     );
-
+    
     res.status(200).json({ message: "Emails sent successfully" });
   } catch (error) {
     console.error("Error sending emails:", error);

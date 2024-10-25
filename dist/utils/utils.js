@@ -7,10 +7,10 @@ exports.contactSchema = exports.userIdSchema = exports.wishlistSchema = exports.
 const joi_1 = __importDefault(require("joi"));
 exports.emailSchema = joi_1.default.object({
     subject: joi_1.default.string().required().messages({
-        'string.empty': 'Subject is required',
+        "string.empty": "Subject is required",
     }),
     messageContent: joi_1.default.string().required().messages({
-        'string.empty': 'Message content is required',
+        "string.empty": "Message content is required",
     }),
 });
 exports.RegisterSchema = joi_1.default.object({
@@ -63,7 +63,7 @@ exports.changePasswordSchema = joi_1.default.object({
 exports.updateProfileSchema = joi_1.default.object({
     username: joi_1.default.string().min(3).max(30).optional(),
     password: joi_1.default.string().min(8).optional(),
-    confirm_password: joi_1.default.string().valid(joi_1.default.ref('password')).optional(),
+    confirm_password: joi_1.default.string().valid(joi_1.default.ref("password")).optional(),
     profilePhoto: joi_1.default.string().optional(),
 });
 exports.creatProductSchema = joi_1.default.object({
@@ -110,7 +110,7 @@ exports.createAdminSchema = joi_1.default.object({
 exports.categorySchema = joi_1.default.object({
     name: joi_1.default.string().required(),
     description: joi_1.default.string().required(),
-    type: joi_1.default.string().valid('car', 'house').required(),
+    type: joi_1.default.string().valid("car", "house").required(),
 });
 exports.productSchema = joi_1.default.object({
     item_name: joi_1.default.string().min(2).max(100).required(),
