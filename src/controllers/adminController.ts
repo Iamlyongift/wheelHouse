@@ -12,7 +12,6 @@ import {
 import UserModel from "../models/UserModel";
 import transport from "../emailConfig";
 
-
 const jwtsecret = process.env.JWT_SECRET as string;
 
 export const adminRegister = async (req: Request, res: Response) => {
@@ -286,7 +285,8 @@ export const sendEmailToUsers = async (
       return;
     }
 
-    const emailBackgroundUrl = "https://res.cloudinary.com/dsn2tjq5l/image/upload/v1729766502/lgyumyemlou8wgftaoew.jpg";
+    const emailBackgroundUrl =
+      "https://res.cloudinary.com/dsn2tjq5l/image/upload/v1729766502/lgyumyemlou8wgftaoew.jpg";
     // Send emails to all users concurrently
     await Promise.all(
       users.map(async (user) => {
@@ -298,26 +298,25 @@ export const sendEmailToUsers = async (
             <!DOCTYPE html>
             <html lang="en">
             <body style="background-image:url('${emailBackgroundUrl}'); background-size:contain; background-position:center; margin:0; padding:0; font-family: Arial, sans-serif;">
-              <div style="background-color:transparent; max-width:600px; height:auto; margin:0 auto; padding:20px; border-radius:8px; color:white;">
-                <h1 style="color:#333; text-align:center;">Hello, ${user.username}!</h1>
+              <div style="background-color:transparent; width:100%; height:100%; margin:0 auto; padding:10px; border-radius:8px; color:white;">
+                <h1 style="color:#fff; text-align: left">Hello, ${user.username}!</h1>
                 <div style="background-color:transparent; padding:15px; border-radius:8px;">
-                  <p style="font-size:16px; line-height:1.5; text-align:left; color:#f4f4f4;">${messageContent}</p>
+                  <p style="font-size:16px; line-height:1.5; text-align:justify; color:#f4f4f4;">${messageContent}</p>
                 </div>
-                <p style="text-align:center; margin-top:20px; font-size:14px; color:#ddd;">Best regards,<br><strong>Cribs&rides</strong></p>
+                <p style="text-align: left; margin-top:20px; font-size:14px; color:#ddd;">Best regards,<br><strong>Cribs&rides</strong></p>
               </div>
             </body>
             </html>
           `,
         };
-    
+
         await transport.sendMail(mailOptions);
       })
     );
-    
+
     res.status(200).json({ message: "Emails sent successfully" });
   } catch (error) {
     console.error("Error sending emails:", error);
     res.status(500).json({ message: "Error sending verification email." });
   }
 };
-
