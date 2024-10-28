@@ -81,7 +81,8 @@ export const RegisterUser = async (req: Request, res: Response) => {
     });
     const verificationUrl = `https://wheelhouse.onrender.com/users/verify-email?token=${verificationToken}`;
 
-    const emailBackgroundUrl = "https://res.cloudinary.com/dsn2tjq5l/image/upload/v1729766502/lgyumyemlou8wgftaoew.jpg";
+    const emailBackgroundUrl =
+      "https://res.cloudinary.com/dsn2tjq5l/image/upload/v1729766502/lgyumyemlou8wgftaoew.jpg";
     // Set up email options
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -91,7 +92,7 @@ export const RegisterUser = async (req: Request, res: Response) => {
         <!DOCTYPE html>
         <html lang="en">
         <body style="background-image:url('${emailBackgroundUrl}'); background-size:cover; background-position:center;">
-          <div style="max-width:600px; margin:0 auto; padding:20px; line-height: 1.6; color:white; ">
+          <div style="max-width:600px; margin:0 auto; padding:20px; line-height: 1.6; color:white; margin-top:2rem;">
             Welcome to Cribs&rides! 🎉<br><br>
     
             We’re thrilled to have you join our BILLIONAIRE'S community, where finding your dream home or the perfect ride is made easy and enjoyable. Whether you’re looking for a cozy crib or a LUXURY set of wheels, we’re here to make the journey smooth and exciting!<br><br>
@@ -111,9 +112,6 @@ export const RegisterUser = async (req: Request, res: Response) => {
         </html>
       `,
     };
-    
-    
-    
 
     console.log("Mail options:", mailOptions);
 
