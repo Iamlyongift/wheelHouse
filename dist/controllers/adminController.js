@@ -244,31 +244,35 @@ const sendEmailToUsers = (req, res) => __awaiter(void 0, void 0, void 0, functio
                 to: user.email,
                 subject: subject,
                 html: `
-            <!DOCTYPE html>
-            <html lang="en">
-            <body style="background-image:url('${emailBackgroundUrl}');  background-size: contain;
-      background-position: center;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      width: 100%;
-      background-repeat: no-repeat;">
-              <div style="background-color:transparent; width:100%; height:100%;  margin: 14rem auto; padding:10px; border-radius:8px; color:white;">
-                <h1 style="color: #fff;
-          text-align: left;
-          padding-inline: 1rem;">Hello, ${user.username}!</h1>
-                <div style="background-color:transparent; padding:15px; border-radius:8px;">
-                  <p style="font-size:16px; line-height:1.5; text-align:justify; color:#f4f4f4;">${messageContent}</p>
-                </div>
-                <p style=" text-align: left;  
-          padding-inline: 1rem;
-          margin-top: 20px;
-          font-size: 14px;
-          color: #ddd;">Best regards,<br><strong>Cribs&rides</strong></p>
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <style>
+              @media only screen and (max-width: 600px) {
+                .content {
+                  margin: 1rem auto; /* Less margin on mobile */
+                  padding: 5px; /* Less padding on mobile */
+                }
+                h1 {
+                  font-size: 24px; /* Adjust heading size for mobile */
+                }
+                p {
+                  font-size: 14px; /* Adjust paragraph size for mobile */
+                }
+              }
+            </style>
+          </head>
+          <body style="background-image:url('${emailBackgroundUrl}'); background-size: cover; background-position: center; margin: 0; padding: 0; font-family: Arial, sans-serif; width: 100%; background-repeat: no-repeat;">
+            <div style="background-color: transparent; max-width: 600px; margin: auto; padding: 20px; border-radius: 8px; color: white;">
+              <h1 style="color: #fff; text-align: left;">Hello, ${user.username}!</h1>
+              <div style="background-color: transparent; padding: 15px; border-radius: 8px;">
+                <p style="font-size: 16px; line-height: 1.5; text-align: justify; color: #f4f4f4;">${messageContent}</p>
               </div>
-            </body>
-            </html>
-          `,
+              <p style="text-align: left; margin-top: 20px; font-size: 14px; color: #ddd;">Best regards,<br><strong>Cribs&rides</strong></p>
+            </div>
+          </body>
+          </html>
+        `,
             };
             yield emailConfig_1.default.sendMail(mailOptions);
         })));
