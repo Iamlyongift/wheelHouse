@@ -16,7 +16,10 @@ const app = express();
 // Set up CORS middleware with multiple allowed origins
 app.use(
   cors({
-    origin: ["https://wheel-house-frontend.vercel.app", "https://wheel-house-dashboard.vercel.app"],
+    origin: [
+      "https://www.cribsandrides.com",
+      "https://admin.cribsandrides.com",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // Allow required methods
     credentials: true, // Allow cookies or authorization headers
     allowedHeaders: ["Content-Type", "Authorization"], // Allow headers that are needed
@@ -27,8 +30,6 @@ app.options("*", cors());
 // View engine setup
 app.set("views", path.join(__dirname, "../views"));
 app.set("view engine", "jade");
-
-
 
 app.use(logger("dev"));
 app.use(express.json());
