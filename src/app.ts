@@ -13,16 +13,9 @@ dotenv.config();
 
 const app = express();
 
-// Set up CORS middleware with multiple allowed origins
-// Get CORS origins from the environment variable
-const corsOrigins = process.env.CORS_ORIGINS
-  ? process.env.CORS_ORIGINS.split(",")
-  : [];
-
-// Set up CORS middleware with multiple allowed origins
 app.use(
   cors({
-    origin: corsOrigins, // Use the origins from the environment variable
+    origin: ["https://admin.cribsandrides.com", "https://cribsandrides.com"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // Allow required methods
     credentials: true, // Allow cookies or authorization headers
     allowedHeaders: ["Content-Type", "Authorization"], // Allow specific headers

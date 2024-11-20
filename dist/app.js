@@ -15,11 +15,8 @@ const admin_1 = __importDefault(require("./routes/admin"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
-const corsOrigins = process.env.CORS_ORIGINS
-    ? process.env.CORS_ORIGINS.split(",")
-    : [];
 app.use((0, cors_1.default)({
-    origin: corsOrigins,
+    origin: ["https://admin.cribsandrides.com", "https://cribsandrides.com"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
