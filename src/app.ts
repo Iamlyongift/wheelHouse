@@ -13,15 +13,48 @@ dotenv.config();
 
 const app = express();
 
-app.use(
-  cors({
-    origin: ["https://admin.cribsandrides.com", "https://cribsandrides.com"],
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // Allow required methods
-    credentials: true, // Allow cookies or authorization headers
-    allowedHeaders: ["Content-Type", "Authorization"], // Allow specific headers
-  })
-);
-app.options("*", cors());
+// Add this before your CORS middleware
+app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log("Incoming request:");
+  console.log("Origin:", req.headers.origin);
+  console.log("Method:", req.method);
+  next();
+});
+
+// CORS Configuration
+const corsOptions = {
+  origin: function (
+    origin: string | undefined,
+    callback: (error: Error | null, allow?: boolean) => void
+  ) {
+    const allowedOrigins = [
+      "https://admin.cribsandrides.com",
+      "https://cribsandrides.com",
+      "http://localhost:5174", // Your frontend port
+      "http://localhost:2025", // Your backend port
+    ];
+
+    // For development debugging
+    console.log("Incoming request from origin:", origin);
+
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  exposedHeaders: ["Set-Cookie"],
+};
+
+app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options("*", cors(corsOptions));
 
 // View engine setup
 app.set("views", path.join(__dirname, "../views"));
@@ -37,6 +70,12 @@ app.use(express.static(path.join(__dirname, "../public")));
 app.use("/product", indexRouter);
 app.use("/users", usersRouter);
 app.use("/admin", adminRouter);
+
+// Add this after your CORS middleware
+app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log("Response headers:", res.getHeaders());
+  next();
+});
 
 // Catch 404 and forward to error handler
 app.use((req: Request, res: Response, next: NextFunction) => {
