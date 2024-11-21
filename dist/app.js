@@ -25,7 +25,7 @@ const corsOptions = {
     origin: function (origin, callback) {
         const allowedOrigins = [
             "https://admin.cribsandrides.com",
-            "https://cribsandrides.com",
+            "https://www.cribsandrides.com",
             "http://localhost:5174",
             "http://localhost:2025",
         ];

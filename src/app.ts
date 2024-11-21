@@ -29,7 +29,7 @@ const corsOptions = {
   ) {
     const allowedOrigins = [
       "https://admin.cribsandrides.com",
-      "https://cribsandrides.com",
+      "https://www.cribsandrides.com",
       "http://localhost:5174", // Your frontend port
       "http://localhost:2025", // Your backend port
     ];
