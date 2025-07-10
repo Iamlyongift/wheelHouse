@@ -18,7 +18,7 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const utils_1 = require("../utils/utils");
 const UserModel_1 = __importDefault(require("../models/UserModel"));
 const emailConfig_1 = __importDefault(require("../emailConfig"));
-const jwtsecret = process.env.JWT_SECRET;
+const jwtSecret = process.env.JWT_SECRET;
 const adminRegister = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { error, value } = utils_1.adminRegistrationSchema.validate(req.body);
@@ -40,11 +40,11 @@ const adminRegister = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             role: "admin",
         });
         yield newAdmin.save();
-        res.status(201).json({ message: "Admin created successfully" });
+        return res.status(201).json({ message: "Admin created successfully" });
     }
     catch (error) {
         console.error("Error in admin registration:", error);
-        res.status(500).json({ message: "Error creating admin" });
+        return res.status(500).json({ message: "Error creating admin" });
     }
 });
 exports.adminRegister = adminRegister;
@@ -60,18 +60,16 @@ const adminLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             return res.status(401).json({ message: "Invalid username or password" });
         }
         if (user.role !== "admin") {
-            return res
-                .status(403)
-                .json({ message: "Access denied. Admin rights required." });
+            return res.status(403).json({ message: "Access denied. Admin rights required." });
         }
-        const token = jsonwebtoken_1.default.sign({ _id: user._id, role: user.role }, jwtsecret, {
+        const token = jsonwebtoken_1.default.sign({ _id: user._id, role: user.role }, jwtSecret, {
             expiresIn: "30d",
         });
-        res.json({ token, role: user.role });
+        return res.status(200).json({ token, role: user.role });
     }
     catch (error) {
         console.error("Error in admin login:", error);
-        res.status(500).json({ message: "An error occurred during login" });
+        return res.status(500).json({ message: "An error occurred during login" });
     }
 });
 exports.adminLogin = adminLogin;
@@ -83,7 +81,7 @@ const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             .skip(skip)
             .limit(Number(limit));
         const totalUsers = yield UserModel_1.default.countDocuments({});
-        res.status(200).json({
+        return res.status(200).json({
             users,
             totalPages: Math.ceil(totalUsers / Number(limit)),
             currentPage: Number(page),
@@ -92,7 +90,7 @@ const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
     catch (error) {
         console.error("Error fetching users:", error);
-        res.status(500).json({ message: "Error fetching users" });
+        return res.status(500).json({ message: "Error fetching users" });
     }
 });
 exports.getAllUsers = getAllUsers;
@@ -105,11 +103,11 @@ const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found" });
         }
-        res.status(200).json({ message: "User updated successfully", updatedUser });
+        return res.status(200).json({ message: "User updated successfully", updatedUser });
     }
     catch (error) {
         console.error("Error updating user:", error);
-        res.status(500).json({ message: "Error updating user" });
+        return res.status(500).json({ message: "Error updating user" });
     }
 });
 exports.updateUser = updateUser;
@@ -122,14 +120,14 @@ const toggleUserStatus = (req, res) => __awaiter(void 0, void 0, void 0, functio
         }
         user.isActive = !user.isActive;
         yield user.save({ validateModifiedOnly: true });
-        res.status(200).json({
+        return res.status(200).json({
             message: `User ${user.isActive ? "reactivated" : "deactivated"} successfully`,
             user,
         });
     }
     catch (error) {
         console.error("Error toggling user status:", error);
-        res.status(500).json({ message: "Error toggling user status" });
+        return res.status(500).json({ message: "Error toggling user status" });
     }
 });
 exports.toggleUserStatus = toggleUserStatus;
@@ -148,10 +146,11 @@ const resetUserPassword = (req, res) => __awaiter(void 0, void 0, void 0, functi
         const hashedPassword = yield bcryptjs_1.default.hash(newPassword, 10);
         user.password = hashedPassword;
         yield user.save();
-        res.status(200).json({ message: "Password reset successfully" });
+        return res.status(200).json({ message: "Password reset successfully" });
     }
     catch (error) {
-        res.status(500).json({ message: "Error resetting password" });
+        console.error("Error resetting password:", error);
+        return res.status(500).json({ message: "Error resetting password" });
     }
 });
 exports.resetUserPassword = resetUserPassword;
@@ -173,13 +172,11 @@ const createAdminUser = (req, res) => __awaiter(void 0, void 0, void 0, function
             password: hashedPassword,
             role: "admin",
         });
-        res
-            .status(201)
-            .json({ message: "Admin user created successfully", newAdmin });
+        return res.status(201).json({ message: "Admin user created successfully", newAdmin });
     }
     catch (error) {
         console.error("Error creating admin user:", error);
-        res.status(500).json({ message: "Error creating admin user" });
+        return res.status(500).json({ message: "Error creating admin user" });
     }
 });
 exports.createAdminUser = createAdminUser;
@@ -192,11 +189,11 @@ const assignAdminRole = (req, res) => __awaiter(void 0, void 0, void 0, function
         }
         user.role = "admin";
         yield user.save();
-        res.status(200).json({ message: "Admin role assigned successfully", user });
+        return res.status(200).json({ message: "Admin role assigned successfully", user });
     }
     catch (error) {
         console.error("Error assigning admin role:", error);
-        res.status(500).json({ message: "Error assigning admin role" });
+        return res.status(500).json({ message: "Error assigning admin role" });
     }
 });
 exports.assignAdminRole = assignAdminRole;
@@ -211,15 +208,16 @@ const getAdminProfile = (req, res) => __awaiter(void 0, void 0, void 0, function
         if (!admin) {
             return res.status(404).json({ message: "Admin not found" });
         }
-        res.status(200).json({
+        return res.status(200).json({
             message: "Admin profile retrieved successfully",
             admin,
         });
     }
-    catch (err) {
-        res.status(500).json({
+    catch (error) {
+        console.error("Error retrieving admin profile:", error);
+        return res.status(500).json({
             message: "Error retrieving admin profile",
-            error: err.message,
+            error: error.message,
         });
     }
 });
@@ -237,42 +235,21 @@ const sendEmailToUsers = (req, res) => __awaiter(void 0, void 0, void 0, functio
             res.status(404).json({ message: "No registered users found" });
             return;
         }
-        const emailBackgroundUrl = "https://res.cloudinary.com/dsn2tjq5l/image/upload/v1729766502/lgyumyemlou8wgftaoew.jpg";
+        const backgroundUrl = "https://res.cloudinary.com/dsn2tjq5l/image/upload/v1729766502/lgyumyemlou8wgftaoew.jpg";
         yield Promise.all(users.map((user) => __awaiter(void 0, void 0, void 0, function* () {
             const mailOptions = {
                 from: process.env.EMAIL_USER,
                 to: user.email,
-                subject: subject,
+                subject,
                 html: `
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <style>
-              @media only screen and (max-width: 600px) {
-                .content {
-                  margin: 1rem auto; /* Less margin on mobile */
-                  padding: 5px; /* Less padding on mobile */
-                }
-                h1 {
-                  font-size: 24px; /* Adjust heading size for mobile */
-                }
-                p {
-                  font-size: 14px; /* Adjust paragraph size for mobile */
-                }
-              }
-            </style>
-          </head>
-          <body style="background-image:url('${emailBackgroundUrl}'); background-size: cover; background-position: center; margin: 0; padding: 0; font-family: Arial, sans-serif; width: 100%; background-repeat: no-repeat;">
-            <div style="background-color: transparent; max-width: 600px; margin: auto; padding: 20px; border-radius: 8px; color: white;">
-              <h1 style="color: #fff; text-align: left;">Hello, ${user.username}!</h1>
-              <div style="background-color: transparent; padding: 15px; border-radius: 8px;">
-                <p style="font-size: 16px; line-height: 1.5; text-align: justify; color: #f4f4f4;">${messageContent}</p>
-              </div>
-              <p style="text-align: left; margin-top: 20px; font-size: 14px; color: #ddd;">Best regards,<br><strong>Cribs&rides</strong></p>
-            </div>
-          </body>
-          </html>
-        `,
+            <html>
+              <body style="background-image: url('${backgroundUrl}'); background-size: cover; font-family: Arial, sans-serif; padding: 20px; color: white;">
+                <h1>Hello, ${user.username}!</h1>
+                <p style="font-size: 16px;">${messageContent}</p>
+                <p>Best regards,<br><strong>Cribs&rides</strong></p>
+              </body>
+            </html>
+          `,
             };
             yield emailConfig_1.default.sendMail(mailOptions);
         })));

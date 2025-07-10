@@ -9,10 +9,10 @@ const path_1 = __importDefault(require("path"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
+const dotenv_1 = __importDefault(require("dotenv"));
 const index_1 = __importDefault(require("./routes/index"));
 const users_1 = __importDefault(require("./routes/users"));
 const admin_1 = __importDefault(require("./routes/admin"));
-const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((req, res, next) => {
@@ -21,18 +21,15 @@ app.use((req, res, next) => {
     console.log("Method:", req.method);
     next();
 });
+const allowedOrigins = [
+    "https://admin.cribsandrides.com",
+    "https://www.cribsandrides.com",
+    "http://localhost:5173",
+    "http://localhost:2025",
+];
 const corsOptions = {
-    origin: function (origin, callback) {
-        const allowedOrigins = [
-            "https://admin.cribsandrides.com",
-            "https://www.cribsandrides.com",
-            "http://localhost:5174",
-            "http://localhost:2025",
-        ];
-        console.log("Incoming request from origin:", origin);
-        if (!origin)
-            return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         }
         else {
@@ -64,9 +61,25 @@ app.use((req, res, next) => {
     next((0, http_errors_1.default)(404));
 });
 app.use((err, req, res, next) => {
-    res.locals.message = err.message;
-    res.locals.error = req.app.get("env") === "development" ? err : {};
-    res.status(err.status || 500);
-    res.render("error");
+    var _a;
+    const isApiRequest = req.originalUrl.startsWith("/api") ||
+        req.originalUrl.startsWith("/users") ||
+        req.originalUrl.startsWith("/admin") ||
+        req.originalUrl.startsWith("/product") ||
+        ((_a = req.headers.accept) === null || _a === void 0 ? void 0 : _a.includes("application/json"));
+    if (isApiRequest) {
+        res.status(err.status || 500).json({
+            message: err.message || "Something went wrong",
+            error: process.env.NODE_ENV === "development" ? err : {},
+        });
+    }
+    else {
+        res.status(err.status || 500);
+        res.render("error", {
+            title: "Error",
+            message: err.message,
+            error: err,
+        });
+    }
 });
 exports.default = app;
